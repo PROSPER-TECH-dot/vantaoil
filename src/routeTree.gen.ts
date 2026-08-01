@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedMineRouteImport } from './routes/_authenticated/mine'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 
@@ -41,6 +42,11 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMineRoute = AuthenticatedMineRouteImport.update({
+  id: '/mine',
+  path: '/mine',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/mine': typeof AuthenticatedMineRoute
   '/products': typeof AuthenticatedProductsRoute
   '/team': typeof AuthenticatedTeamRoute
 }
@@ -65,6 +72,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/mine': typeof AuthenticatedMineRoute
   '/products': typeof AuthenticatedProductsRoute
   '/team': typeof AuthenticatedTeamRoute
 }
@@ -75,14 +83,16 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/mine': typeof AuthenticatedMineRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/home' | '/products' | '/team'
+  fullPaths:
+    '/' | '/login' | '/register' | '/home' | '/mine' | '/products' | '/team'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/home' | '/products' | '/team'
+  to: '/' | '/login' | '/register' | '/home' | '/mine' | '/products' | '/team'
   id:
     | '__root__'
     | '/'
@@ -90,6 +100,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/_authenticated/home'
+    | '/_authenticated/mine'
     | '/_authenticated/products'
     | '/_authenticated/team'
   fileRoutesById: FileRoutesById
@@ -138,6 +149,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mine': {
+      id: '/_authenticated/mine'
+      path: '/mine'
+      fullPath: '/mine'
+      preLoaderRoute: typeof AuthenticatedMineRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/products': {
       id: '/_authenticated/products'
       path: '/products'
@@ -157,12 +175,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedMineRoute: typeof AuthenticatedMineRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedMineRoute: AuthenticatedMineRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
 }
