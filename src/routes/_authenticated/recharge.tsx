@@ -154,7 +154,7 @@ function RechargePage() {
       </button>
 
       <div className="mt-5 space-y-2 px-5 text-[15.5px] leading-[1.55] text-muted-foreground">
-        <p>1. The minimum recharge amount is UGX 20000. If it is lower than the minimum amount, the money will not be credited.</p>
+        <p>1. The minimum recharge amount is UGX {settings.min_recharge.toLocaleString("en-US")}. If it is lower than the minimum amount, the money will not be credited.</p>
         <p>2. Recharged funds can only be used to purchase products. They are not withdrawable.</p>
         <p>3. The wallet number filled in must be the same as the final payment wallet number.</p>
         <p>4. Please wait for 10-20 minutes after the transfer is successful. If your money has not been credited for a long time, please submit your transfer voucher at the top of the page.</p>
