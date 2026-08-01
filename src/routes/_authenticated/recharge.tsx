@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { startDeposit } from "@/lib/payments.functions";
 import { useSettings } from "@/lib/vanta";
 import banner from "@/assets/recharge-banner.jpg";
 
@@ -27,7 +28,9 @@ function RechargePage() {
   const queryClient = useQueryClient();
   const { showPillToast, showProcessingToast } = useCenterToast();
   const settings = useSettings();
+  const deposit = useServerFn(startDeposit);
   const [amount, setAmount] = useState("20000");
+
 
   return (
     <div className="slide-in min-h-dvh bg-surface pb-10">
@@ -126,13 +129,13 @@ function RechargePage() {
               return;
             }
             await showProcessingToast("Processing payment...", 2500);
-            const { error } = await supabase.rpc("create_recharge", { p_amount: Number(amount) });
-            if (error) {
-              showPillToast(error.message);
-              return;
+            try {
+              await deposit({ data: { amount: Number(amount) } });
+              await queryClient.invalidateQueries();
+              showPillToast("Approve the payment prompt on your phone");
+            } catch (error) {
+              showPillToast(error instanceof Error ? error.message : "Payment could not be started");
             }
-            await queryClient.invalidateQueries();
-            showPillToast("Approve the payment prompt on your phone");
           }}
           className="press mx-auto block w-[62%] rounded-full py-3.5 text-[19px] font-bold text-primary-foreground"
           style={{ background: "var(--gradient-gold)", boxShadow: "var(--shadow-gold)" }}
@@ -140,6 +143,7 @@ function RechargePage() {
           Confirm
         </button>
       </div>
+
 
       <button
         type="button"
@@ -150,7 +154,7 @@ function RechargePage() {
       </button>
 
       <div className="mt-5 space-y-2 px-5 text-[15.5px] leading-[1.55] text-muted-foreground">
-        <p>1. The minimum recharge amount is UGX 20000. If it is lower than the minimum amount, the money will not be credited.</p>
+        <p>1. The minimum recharge amount is UGX {settings.min_recharge.toLocaleString("en-US")}. If it is lower than the minimum amount, the money will not be credited.</p>
         <p>2. Recharged funds can only be used to purchase products. They are not withdrawable.</p>
         <p>3. The wallet number filled in must be the same as the final payment wallet number.</p>
         <p>4. Please wait for 10-20 minutes after the transfer is successful. If your money has not been credited for a long time, please submit your transfer voucher at the top of the page.</p>

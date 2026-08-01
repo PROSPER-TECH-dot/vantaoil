@@ -33,6 +33,7 @@ import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/t
 import { Route as AuthenticatedTeamRecordsRouteImport } from './routes/_authenticated/team-records'
 import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
 import { Route as AuthenticatedWithdrawalRecordsRouteImport } from './routes/_authenticated/withdrawal-records'
+import { Route as ApiPublicZengapayWebhookRouteImport } from './routes/api/public/zengapay-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -159,6 +160,12 @@ const AuthenticatedWithdrawalRecordsRoute =
     path: '/withdrawal-records',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicZengapayWebhookRoute =
+  ApiPublicZengapayWebhookRouteImport.update({
+    id: '/api/public/zengapay-webhook',
+    path: '/api/public/zengapay-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/team-records': typeof AuthenticatedTeamRecordsRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/withdrawal-records': typeof AuthenticatedWithdrawalRecordsRoute
+  '/api/public/zengapay-webhook': typeof ApiPublicZengapayWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -209,6 +217,7 @@ export interface FileRoutesByTo {
   '/team-records': typeof AuthenticatedTeamRecordsRoute
   '/withdraw': typeof AuthenticatedWithdrawRoute
   '/withdrawal-records': typeof AuthenticatedWithdrawalRecordsRoute
+  '/api/public/zengapay-webhook': typeof ApiPublicZengapayWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -236,6 +245,7 @@ export interface FileRoutesById {
   '/_authenticated/team-records': typeof AuthenticatedTeamRecordsRoute
   '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
   '/_authenticated/withdrawal-records': typeof AuthenticatedWithdrawalRecordsRoute
+  '/api/public/zengapay-webhook': typeof ApiPublicZengapayWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
     | '/team-records'
     | '/withdraw'
     | '/withdrawal-records'
+    | '/api/public/zengapay-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -288,6 +299,7 @@ export interface FileRouteTypes {
     | '/team-records'
     | '/withdraw'
     | '/withdrawal-records'
+    | '/api/public/zengapay-webhook'
   id:
     | '__root__'
     | '/'
@@ -314,6 +326,7 @@ export interface FileRouteTypes {
     | '/_authenticated/team-records'
     | '/_authenticated/withdraw'
     | '/_authenticated/withdrawal-records'
+    | '/api/public/zengapay-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -321,6 +334,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  ApiPublicZengapayWebhookRoute: typeof ApiPublicZengapayWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -493,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWithdrawalRecordsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/zengapay-webhook': {
+      id: '/api/public/zengapay-webhook'
+      path: '/api/public/zengapay-webhook'
+      fullPath: '/api/public/zengapay-webhook'
+      preLoaderRoute: typeof ApiPublicZengapayWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -550,6 +571,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  ApiPublicZengapayWebhookRoute: ApiPublicZengapayWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

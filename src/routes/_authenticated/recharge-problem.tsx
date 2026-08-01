@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
 import { LineInput, StarLabel, SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/recharge-problem")({
   head: () => ({
@@ -17,22 +19,63 @@ export const Route = createFileRoute("/_authenticated/recharge-problem")({
 });
 
 function RechargeProblemPage() {
+  const queryClient = useQueryClient();
   const { showPillToast, showCenterToast } = useCenterToast();
   const fileRef = useRef<HTMLInputElement>(null);
   const [wallet, setWallet] = useState("");
   const [amount, setAmount] = useState("");
-  const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const fileName = file?.name ?? "";
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!wallet.trim()) return showPillToast("Please enter your wallet number");
     if (!amount.trim()) return showPillToast("Please enter recharge amount");
-    if (!fileName) return showPillToast("Please upload your recharge certificate");
-    showCenterToast("Submitted successfully");
-    setWallet("");
-    setAmount("");
-    setFileName("");
+    if (!file) return showPillToast("Please upload your recharge certificate");
+    if (busy) return;
+
+    setBusy(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user;
+      if (!user) {
+        showPillToast("Please sign in again");
+        return;
+      }
+
+      const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${user.id}/${Date.now()}.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from("certificates")
+        .upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+      if (uploadError) {
+        showPillToast(uploadError.message);
+        return;
+      }
+
+      const { error } = await supabase.from("recharge_problems").insert({
+        user_id: user.id,
+        wallet: wallet.trim(),
+        amount: Number(amount),
+        certificate_url: path,
+      });
+      if (error) {
+        showPillToast(error.message);
+        return;
+      }
+
+      await queryClient.invalidateQueries();
+      showCenterToast("Submitted successfully");
+      setWallet("");
+      setAmount("");
+      setFile(null);
+      if (fileRef.current) fileRef.current.value = "";
+    } finally {
+      setBusy(false);
+    }
   }
+
 
   return (
     <div className="slide-in min-h-dvh bg-surface">
@@ -78,7 +121,7 @@ function RechargeProblemPage() {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
           </div>
         </div>

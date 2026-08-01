@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { startWithdrawal } from "@/lib/payments.functions";
 import { ugx, useProfile, useSettings } from "@/lib/vanta";
 import withdrawImage from "@/assets/pumpjack-free.png";
 
@@ -26,6 +27,7 @@ function WithdrawPage() {
   const { showPillToast, showCenterToast, showProcessingToast } = useCenterToast();
   const { data: profile } = useProfile();
   const settings = useSettings();
+  const withdraw = useServerFn(startWithdrawal);
   const [amount, setAmount] = useState("");
 
   async function handleConfirm() {
@@ -43,15 +45,16 @@ function WithdrawPage() {
       return;
     }
     await showProcessingToast("Processing withdrawal...", 2500);
-    const { error } = await supabase.rpc("request_withdrawal", { p_amount: value });
-    if (error) {
-      showPillToast(error.message);
-      return;
+    try {
+      await withdraw({ data: { amount: value } });
+      setAmount("");
+      await queryClient.invalidateQueries();
+      showCenterToast("Withdrawal submitted");
+    } catch (error) {
+      showPillToast(error instanceof Error ? error.message : "Withdrawal could not be submitted");
     }
-    setAmount("");
-    await queryClient.invalidateQueries();
-    showCenterToast("Withdrawal submitted");
   }
+
 
   return (
     <div className="slide-in min-h-dvh bg-surface pb-10">
