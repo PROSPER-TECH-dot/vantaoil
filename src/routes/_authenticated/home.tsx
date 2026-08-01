@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import heroImage from "@/assets/oil-rig-hero.jpg";
 import cardsImage from "@/assets/oil-cards.jpg";
@@ -52,6 +52,7 @@ const actions = [
   },
   {
     label: "Check-in",
+    to: "/checkin" as const,
     icon: (
       <>
         <circle cx="12" cy="13" r="8" />
@@ -103,10 +104,12 @@ function HomePage() {
       </section>
 
       <section className="grid grid-cols-4 gap-2 px-4 pt-6 pb-5">
-        {actions.map((action) => (
-          <button
+        {actions.map((action) => {
+          const Wrapper = "to" in action ? Link : "button";
+          return (
+          <Wrapper
             key={action.label}
-            type="button"
+            {...("to" in action ? { to: action.to } : { type: "button" as const })}
             className="press flex flex-col items-center gap-2 text-[13px] font-semibold"
           >
             <svg
@@ -123,8 +126,9 @@ function HomePage() {
               {action.icon}
             </svg>
             {action.label}
-          </button>
-        ))}
+          </Wrapper>
+          );
+        })}
       </section>
 
       <section className="grid grid-cols-3 gap-2.5 px-4">
