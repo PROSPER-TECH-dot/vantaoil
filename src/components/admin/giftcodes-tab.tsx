@@ -57,7 +57,7 @@ export function GiftCodesTab() {
       if (mode === "random" && Number(minAmount) >= Number(maxAmount))
         throw new Error("Random range must be low to high");
       const expiresAt = expiryValue.trim()
-        ? new Date(Date.now() + Number(expiryValue) * UNITS[expiryUnit]).toISOString()
+        ? new Date(Date.now() + Number(expiryValue) * (UNITS[expiryUnit] ?? 60_000)).toISOString()
         : null;
       const { error } = await supabase.from("gift_codes").insert({
         code: name,

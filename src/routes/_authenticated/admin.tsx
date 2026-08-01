@@ -35,12 +35,8 @@ const TABS = [
 
 function AdminPage() {
   const navigate = useNavigate();
-  const { isAdmin, isLoading } = useIsAdmin();
+  const isAdmin = useIsAdmin();
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("overview");
-
-  if (isLoading) {
-    return <div className="p-6 text-center text-[14px] text-muted-foreground">Loading…</div>;
-  }
 
   if (!isAdmin) {
     return (
