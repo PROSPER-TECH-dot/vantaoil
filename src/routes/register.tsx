@@ -34,7 +34,7 @@ const schema = z
     phone: z.string().trim().min(6, "Enter your phone number").max(15),
     password: z.string().min(6, "Use at least 6 characters").max(72),
     confirmPassword: z.string(),
-    inviteCode: z.string().trim().max(20).optional(),
+    inviteCode: z.string().trim().min(1, "An invitation code is required").max(20),
   })
   .refine((v) => v.password === v.confirmPassword, {
     path: ["confirmPassword"],
@@ -149,7 +149,7 @@ function RegisterPage() {
             name="inviteCode"
             autoComplete="off"
             defaultValue={search.code}
-            placeholder="Invitation code (optional)"
+            placeholder="Invitation code"
             error={errors["inviteCode"]}
           />
           <PillButton loading={submitting}>Register</PillButton>

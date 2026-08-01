@@ -10,7 +10,6 @@ type Row = {
   id: string;
   full_name: string | null;
   phone: string | null;
-  email: string | null;
   avatar_url: string | null;
   balance: number;
   recharge_balance: number;
@@ -25,7 +24,7 @@ type Row = {
 type Referral = { id: string; phone: string | null; avatar_url: string | null; created_at: string; recharge: number };
 
 type Detail = {
-  profile: Row & { checkin_days: number; referred_by: string | null; avatar_url: string | null };
+  profile: Row & { checkin_days: number; referred_by: string | null; email: string | null };
   referrer: string | null;
   purchases: {
     id: string; name: string; price: number; daily: number; term: string; total: number; created_at: string;
@@ -36,6 +35,12 @@ type Detail = {
   referrals: Referral[];
   referrals_l2: Referral[];
   referrals_l3: Referral[];
+  recharge_l1: number;
+  recharge_l2: number;
+  recharge_l3: number;
+  commission_l1: number;
+  commission_l2: number;
+  commission_l3: number;
   team_recharge: number;
   team_commission: number;
   is_admin: boolean;
@@ -46,17 +51,43 @@ function termDays(term: string) {
   return match ? Number(match[0]) : 0;
 }
 
-function Avatar({ url, label, size = 40 }: { url: string | null | undefined; label: string | null; size?: number }) {
-  if (url) {
+function useAvatarUrl(path: string | null | undefined) {
+  return useQuery({
+    queryKey: ["admin", "avatar", path],
+    enabled: Boolean(path),
+    staleTime: 30 * 60_000,
+    queryFn: async () => {
+      const value = path as string;
+      if (/^https?:\/\//.test(value)) return value;
+      const { data } = await supabase.storage.from("avatars").createSignedUrl(value, 60 * 60);
+      return data?.signedUrl ?? null;
+    },
+  });
+}
+
+function Avatar({
+  url,
+  label,
+  size = 40,
+  onView,
+}: {
+  url: string | null | undefined;
+  label: string | null;
+  size?: number;
+  onView?: (src: string) => void;
+}) {
+  const { data: src } = useAvatarUrl(url);
+  if (src) {
     return (
       <img
-        src={url}
+        src={src}
         alt={label ? `${label} profile picture` : "Member profile picture"}
         width={size}
         height={size}
         loading="lazy"
+        onClick={onView ? (e) => { e.stopPropagation(); onView(src); } : undefined}
         style={{ width: size, height: size }}
-        className="shrink-0 rounded-full object-cover"
+        className="press shrink-0 rounded-full object-cover"
       />
     );
   }
@@ -70,9 +101,24 @@ function Avatar({ url, label, size = 40 }: { url: string | null | undefined; lab
   );
 }
 
+function AvatarViewer({ src, onClose }: { src: string; onClose: () => void }) {
+  return (
+    <div
+      role="dialog"
+      aria-label="Profile picture"
+      onClick={onClose}
+      className="fixed inset-0 z-[80] grid place-items-center bg-night/90 p-6"
+    >
+      <img src={src} alt="Member profile picture in full view" className="max-h-[80vh] w-auto max-w-full rounded-2xl object-contain" />
+    </div>
+  );
+}
+
+
 export function UsersTab() {
   const [search, setSearch] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [viewSrc, setViewSrc] = useState<string | null>(null);
 
   const { data: rows } = useQuery({
     queryKey: ["admin", "users", search],
@@ -80,15 +126,13 @@ export function UsersTab() {
       let query = supabase
         .from("profiles")
         .select(
-          "id, full_name, phone, email, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, products_count, invite_code, banned, created_at",
+          "id, full_name, phone, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, products_count, invite_code, banned, created_at",
         )
         .order("created_at", { ascending: false })
         .limit(200);
       const term = search.trim();
       if (term) {
-        query = query.or(
-          `phone.ilike.%${term}%,email.ilike.%${term}%,full_name.ilike.%${term}%,invite_code.ilike.%${term}%`,
-        );
+        query = query.or(`phone.ilike.%${term}%,invite_code.ilike.%${term}%`);
       }
       const { data, error } = await query;
       if (error) throw error;
@@ -101,7 +145,7 @@ export function UsersTab() {
       <AdminInput
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search phone, email, name or invite code"
+        placeholder="Search phone number or invite code"
         aria-label="Search users"
       />
 
@@ -110,40 +154,44 @@ export function UsersTab() {
       ) : (
         rows.map((row) => (
           <AdminCard key={row.id}>
-            <button type="button" onClick={() => setOpenId(row.id)} className="press w-full text-left">
-              <div className="flex items-start justify-between gap-3">
-                <Avatar url={row.avatar_url} label={row.phone} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[16px] font-semibold">{row.phone || row.email || "—"}</p>
-                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
-                    {row.full_name || "No name"} · Code {row.invite_code ?? "------"}
-                  </p>
+            <div className="flex items-start gap-3">
+              <Avatar url={row.avatar_url} label={row.phone} onView={setViewSrc} />
+              <button type="button" onClick={() => setOpenId(row.id)} className="press min-w-0 flex-1 text-left">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[16px] font-semibold">{row.phone || "—"}</p>
+                    <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
+                      Code {row.invite_code ?? "------"}
+                    </p>
+                  </div>
+                  {row.banned ? <Pill tone="bad">Banned</Pill> : <Pill tone="good">Active</Pill>}
                 </div>
-                {row.banned ? <Pill tone="bad">Banned</Pill> : <Pill tone="good">Active</Pill>}
-              </div>
-              <div className="mt-3 grid grid-cols-3 gap-2 text-[13px]">
-                <div>
-                  <p className="text-muted-foreground">Balance</p>
-                  <p className="font-semibold">{ugx(row.balance)}</p>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-[13px]">
+                  <div>
+                    <p className="text-muted-foreground">Balance</p>
+                    <p className="font-semibold">{ugx(row.balance)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Recharge</p>
+                    <p className="font-semibold">{ugx(row.recharge_balance)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Products</p>
+                    <p className="font-semibold">{row.products_count}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Recharge</p>
-                  <p className="font-semibold">{ugx(row.recharge_balance)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Products</p>
-                  <p className="font-semibold">{row.products_count}</p>
-                </div>
-              </div>
-            </button>
+              </button>
+            </div>
           </AdminCard>
         ))
       )}
 
       {openId ? <UserDetail userId={openId} onClose={() => setOpenId(null)} /> : null}
+      {viewSrc ? <AvatarViewer src={viewSrc} onClose={() => setViewSrc(null)} /> : null}
     </div>
   );
 }
+
 
 function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }) {
   const queryClient = useQueryClient();
@@ -152,6 +200,8 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
   const [direction, setDirection] = useState("credit");
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
+  const [level, setLevel] = useState<1 | 2 | 3>(1);
+  const [viewSrc, setViewSrc] = useState<string | null>(null);
 
   const { data } = useQuery({
     queryKey: ["admin", "user", userId],
@@ -223,11 +273,9 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
         <div className="space-y-5">
           <section>
             <div className="mb-2 flex items-center gap-3">
-              <Avatar url={p?.avatar_url} label={p?.phone ?? null} size={56} />
-              <p className="text-[15px] font-semibold">{p?.phone || p?.email || "—"}</p>
+              <Avatar url={p?.avatar_url} label={p?.phone ?? null} size={56} onView={setViewSrc} />
+              <p className="text-[15px] font-semibold">{p?.phone || "—"}</p>
             </div>
-            <KV label="Name" value={p?.full_name || "—"} />
-            <KV label="Email" value={p?.email || "—"} />
             <KV label="Invite code" value={p?.invite_code ?? "------"} />
             <KV label="Invited by" value={data.referrer || "—"} />
             <KV label="Joined" value={p ? formatStamp(p.created_at) : "—"} />
@@ -244,31 +292,56 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
           </section>
 
           <section>
-            <h3 className="mb-1 text-[15px] font-bold">Team</h3>
-            <KV label="Level 1 referrals" value={String(data.referrals.length)} />
-            <KV label="Level 2 referrals" value={String(data.referrals_l2?.length ?? 0)} />
-            <KV label="Level 3 referrals" value={String(data.referrals_l3?.length ?? 0)} />
-            <KV label="Team recharge" value={ugx(data.team_recharge)} />
-            <KV label="Received from invites" value={ugx(data.team_commission)} />
-            {[
-              { level: "Lv1", list: data.referrals ?? [] },
-              { level: "Lv2", list: data.referrals_l2 ?? [] },
-              { level: "Lv3", list: data.referrals_l3 ?? [] },
-            ].map(({ level, list }) =>
-              list.length === 0 ? null : (
-                <div key={level} className="mt-3">
-                  <p className="text-[13px] font-semibold text-muted-foreground">{level} members</p>
-                  {list.slice(0, 20).map((r) => (
-                    <div key={r.id} className="flex items-center gap-3 py-1.5 text-[13px]">
-                      <Avatar url={r.avatar_url} label={r.phone} size={28} />
-                      <span className="min-w-0 flex-1 truncate">{r.phone || "—"}</span>
-                      <span className="shrink-0">{ugx(r.recharge)}</span>
-                    </div>
-                  ))}
+            <h3 className="mb-2 text-[15px] font-bold">Team</h3>
+            <div className="flex gap-2">
+              {([1, 2, 3] as const).map((lv) => (
+                <button
+                  key={lv}
+                  type="button"
+                  onClick={() => setLevel(lv)}
+                  className={`press rounded-full px-4 py-1.5 text-[13px] font-semibold ${
+                    level === lv ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground"
+                  }`}
+                >
+                  Level {lv}
+                </button>
+              ))}
+            </div>
+            {(() => {
+              const list =
+                level === 1 ? data.referrals ?? [] : level === 2 ? data.referrals_l2 ?? [] : data.referrals_l3 ?? [];
+              const recharge =
+                level === 1 ? data.recharge_l1 : level === 2 ? data.recharge_l2 : data.recharge_l3;
+              const commission =
+                level === 1 ? data.commission_l1 : level === 2 ? data.commission_l2 : data.commission_l3;
+              return (
+                <div className="mt-3">
+                  <KV label={`Level ${level} members`} value={String(list.length)} />
+                  <KV label={`Level ${level} team recharge`} value={ugx(recharge ?? 0)} />
+                  <KV label={`Commission from level ${level}`} value={ugx(commission ?? 0)} />
+                  {list.length === 0 ? (
+                    <Empty />
+                  ) : (
+                    list.map((r) => (
+                      <div key={r.id} className="flex items-center gap-3 border-b border-border py-2 text-[13px]">
+                        <Avatar url={r.avatar_url} label={r.phone} size={28} onView={setViewSrc} />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate">{r.phone || "—"}</p>
+                          <p className="text-[12px] text-muted-foreground">{formatStamp(r.created_at)}</p>
+                        </div>
+                        <span className="shrink-0 font-semibold">{ugx(r.recharge)}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
-              ),
-            )}
+              );
+            })()}
+            <div className="mt-3">
+              <KV label="Total team recharge" value={ugx(data.team_recharge)} />
+              <KV label="Total received from invites" value={ugx(data.team_commission)} />
+            </div>
           </section>
+
 
 
           <section>
@@ -363,6 +436,8 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
               ))
             )}
           </section>
+
+          {viewSrc ? <AvatarViewer src={viewSrc} onClose={() => setViewSrc(null)} /> : null}
         </div>
       )}
     </AdminModal>

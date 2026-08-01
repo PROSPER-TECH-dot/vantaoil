@@ -60,16 +60,31 @@ function LoginPage() {
 
     setErrors({});
     setSubmitting(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: signIn, error } = await supabase.auth.signInWithPassword({
       email: phoneToEmail(parsed.data.phone),
       password: parsed.data.password,
     });
-    setSubmitting(false);
 
     if (error) {
+      setSubmitting(false);
       showPillToast(error.message);
       return;
     }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("banned")
+      .eq("id", signIn.user?.id ?? "")
+      .maybeSingle();
+
+    if (profile?.banned) {
+      await supabase.auth.signOut();
+      setSubmitting(false);
+      showPillToast("Your account has been suspended. Contact customer service.");
+      return;
+    }
+
+    setSubmitting(false);
 
     await setupAccount(`+256${parsed.data.phone.replace(/\D/g, "").replace(/^0+/, "")}`);
     showCenterToast("Login successful");
