@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import teamImage from "@/assets/oil-team.jpg";
 import { useCenterToast } from "@/components/vanta/center-toast";
@@ -62,15 +62,16 @@ function TeamPage() {
           />
           <div className="relative flex min-h-[420px] flex-col justify-between p-5 text-night-foreground">
             <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0">
+              <Link to="/team-records" className="press block min-w-0 text-left text-night-foreground">
                 <p className="text-[22px] font-bold">UGX 0</p>
                 <p className="mt-1 text-[14px] opacity-90">Total rewards &gt;</p>
-              </div>
-              <div className="min-w-0 text-right">
+              </Link>
+              <Link to="/team-records" className="press block min-w-0 text-right text-night-foreground">
                 <p className="text-[22px] font-bold">0</p>
                 <p className="mt-1 text-[14px] opacity-90">Total users &gt;</p>
-              </div>
+              </Link>
             </div>
+
 
             <div>
               <div className="grid grid-cols-2 gap-4">
