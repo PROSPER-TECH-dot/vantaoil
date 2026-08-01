@@ -121,7 +121,7 @@ function RechargeProblemPage() {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => setFileName(e.target.files?.[0]?.name ?? "")}
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
           </div>
         </div>
