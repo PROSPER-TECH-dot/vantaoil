@@ -42,30 +42,30 @@ export const Route = createFileRoute('/api/public/zengapay-webhook')({
         const reference = data.transactionExternalReference;
         if (!reference) return new Response('Missing reference', { status: 202 });
 
-        const providerRef = data.transactionSystemId ?? undefined;
+        const ref = data.transactionSystemId ? { p_provider_ref: data.transactionSystemId } : {};
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
 
         if (event === 'collection.success') {
           await supabaseAdmin.rpc('credit_recharge_by_reference', {
             p_reference: reference,
-            p_provider_ref: providerRef,
+            ...ref,
           });
         } else if (event === 'collection.failed') {
           await supabaseAdmin.rpc('fail_recharge_by_reference', {
             p_reference: reference,
-            p_provider_ref: providerRef,
+            ...ref,
           });
         } else if (event === 'transfer.success') {
           await supabaseAdmin.rpc('settle_withdrawal_by_reference', {
             p_reference: reference,
             p_status: 'Success',
-            p_provider_ref: providerRef,
+            ...ref,
           });
         } else if (event === 'transfer.failed') {
           await supabaseAdmin.rpc('settle_withdrawal_by_reference', {
             p_reference: reference,
             p_status: 'Rejected',
-            p_provider_ref: providerRef,
+            ...ref,
           });
         }
 
