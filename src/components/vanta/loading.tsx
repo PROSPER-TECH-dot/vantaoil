@@ -37,10 +37,11 @@ export function RingLoader({ size = 44 }: { size?: number }) {
           key={i}
           className="vanta-spinner-bar"
           style={{
-            transform: `rotate(${i * 30}deg) translateY(-38%)`,
+            transform: `rotate(${i * 30}deg) translateY(48%)`,
             animationDelay: `${(i - 12) * 0.1}s`,
           }}
         />
+
       ))}
     </span>
   );
