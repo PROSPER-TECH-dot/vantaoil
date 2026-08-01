@@ -112,7 +112,8 @@ export function UsersTab() {
           <AdminCard key={row.id}>
             <button type="button" onClick={() => setOpenId(row.id)} className="press w-full text-left">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <Avatar url={row.avatar_url} label={row.phone} />
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-[16px] font-semibold">{row.phone || row.email || "—"}</p>
                   <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
                     {row.full_name || "No name"} · Code {row.invite_code ?? "------"}
