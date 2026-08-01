@@ -215,16 +215,31 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
 
           <section>
             <h3 className="mb-1 text-[15px] font-bold">Team</h3>
-            <KV label="Referrals" value={String(data.referrals.length)} />
+            <KV label="Level 1 referrals" value={String(data.referrals.length)} />
+            <KV label="Level 2 referrals" value={String(data.referrals_l2?.length ?? 0)} />
+            <KV label="Level 3 referrals" value={String(data.referrals_l3?.length ?? 0)} />
             <KV label="Team recharge" value={ugx(data.team_recharge)} />
-            <KV label="Commission earned" value={ugx(data.team_commission)} />
-            {data.referrals.slice(0, 10).map((r) => (
-              <div key={r.id} className="flex items-center justify-between gap-3 py-1.5 text-[13px]">
-                <span className="truncate text-muted-foreground">{r.phone || "—"}</span>
-                <span>{ugx(r.recharge)}</span>
-              </div>
-            ))}
+            <KV label="Received from invites" value={ugx(data.team_commission)} />
+            {[
+              { level: "Lv1", list: data.referrals ?? [] },
+              { level: "Lv2", list: data.referrals_l2 ?? [] },
+              { level: "Lv3", list: data.referrals_l3 ?? [] },
+            ].map(({ level, list }) =>
+              list.length === 0 ? null : (
+                <div key={level} className="mt-3">
+                  <p className="text-[13px] font-semibold text-muted-foreground">{level} members</p>
+                  {list.slice(0, 20).map((r) => (
+                    <div key={r.id} className="flex items-center gap-3 py-1.5 text-[13px]">
+                      <Avatar url={r.avatar_url} label={r.phone} size={28} />
+                      <span className="min-w-0 flex-1 truncate">{r.phone || "—"}</span>
+                      <span className="shrink-0">{ugx(r.recharge)}</span>
+                    </div>
+                  ))}
+                </div>
+              ),
+            )}
           </section>
+
 
           <section>
             <h3 className="mb-1 text-[15px] font-bold">Purchased products</h3>
