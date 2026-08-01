@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import vip1 from "@/assets/product-vip1.jpg";
@@ -12,7 +13,8 @@ import vip8 from "@/assets/product-vip8.jpg";
 import vip9 from "@/assets/product-vip9.jpg";
 import vip10 from "@/assets/product-vip10.jpg";
 
-export const ugx = (value: number) => `UGX ${Math.abs(value).toLocaleString("en-US")}`;
+export const ugx = (value: number) =>
+  `UGX ${Math.abs(Number(value) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export function formatStamp(iso: string) {
   const d = new Date(iso);
@@ -105,13 +107,33 @@ export function useProfile() {
       const { data } = await supabase
         .from("profiles")
         .select(
-          "id, full_name, email, phone, balance, recharge_balance, cumulative_income, withdrawn, invite_code, checkin_days, last_checkin_date, products_count, banned",
+          "id, full_name, email, phone, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, invite_code, checkin_days, last_checkin_date, products_count, banned",
         )
         .eq("id", user.id)
         .maybeSingle();
       return data;
     },
   });
+}
+
+/** Credits any daily income that became due (24h cycles from purchase time). */
+export function useSettleIncome() {
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.rpc("settle_income");
+      if (!cancelled && Number(data ?? 0) > 0) await queryClient.invalidateQueries();
+    })();
+    const timer = setInterval(async () => {
+      const { data } = await supabase.rpc("settle_income");
+      if (Number(data ?? 0) > 0) await queryClient.invalidateQueries();
+    }, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [queryClient]);
 }
 
 export function useIsAdmin() {

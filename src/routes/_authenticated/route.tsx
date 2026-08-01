@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { BottomNav, NAV_PATHS } from "@/components/vanta/bottom-nav";
+import { useSettleIncome } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AppLayout() {
+  useSettleIncome();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const showNav = (NAV_PATHS as readonly string[]).includes(pathname);
 

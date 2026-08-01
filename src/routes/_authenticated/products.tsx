@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 import { supabase } from "@/integrations/supabase/client";
 import { ugx, useProfile } from "@/lib/vanta";
@@ -250,7 +251,16 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function PurchaseDialog({
+function PurchaseDialog(props: {
+  product: Product;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  if (typeof document === "undefined") return null;
+  return createPortal(<PurchaseDialogBody {...props} />, document.body);
+}
+
+function PurchaseDialogBody({
   product,
   onClose,
   onConfirm,
