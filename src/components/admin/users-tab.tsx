@@ -118,6 +118,7 @@ function AvatarViewer({ src, onClose }: { src: string; onClose: () => void }) {
 export function UsersTab() {
   const [search, setSearch] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [viewSrc, setViewSrc] = useState<string | null>(null);
 
   const { data: rows } = useQuery({
     queryKey: ["admin", "users", search],
@@ -125,15 +126,13 @@ export function UsersTab() {
       let query = supabase
         .from("profiles")
         .select(
-          "id, full_name, phone, email, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, products_count, invite_code, banned, created_at",
+          "id, full_name, phone, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, products_count, invite_code, banned, created_at",
         )
         .order("created_at", { ascending: false })
         .limit(200);
       const term = search.trim();
       if (term) {
-        query = query.or(
-          `phone.ilike.%${term}%,email.ilike.%${term}%,full_name.ilike.%${term}%,invite_code.ilike.%${term}%`,
-        );
+        query = query.or(`phone.ilike.%${term}%,invite_code.ilike.%${term}%`);
       }
       const { data, error } = await query;
       if (error) throw error;
@@ -146,7 +145,7 @@ export function UsersTab() {
       <AdminInput
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search phone, email, name or invite code"
+        placeholder="Search phone number or invite code"
         aria-label="Search users"
       />
 
@@ -155,40 +154,44 @@ export function UsersTab() {
       ) : (
         rows.map((row) => (
           <AdminCard key={row.id}>
-            <button type="button" onClick={() => setOpenId(row.id)} className="press w-full text-left">
-              <div className="flex items-start justify-between gap-3">
-                <Avatar url={row.avatar_url} label={row.phone} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-[16px] font-semibold">{row.phone || row.email || "—"}</p>
-                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
-                    {row.full_name || "No name"} · Code {row.invite_code ?? "------"}
-                  </p>
+            <div className="flex items-start gap-3">
+              <Avatar url={row.avatar_url} label={row.phone} onView={setViewSrc} />
+              <button type="button" onClick={() => setOpenId(row.id)} className="press min-w-0 flex-1 text-left">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[16px] font-semibold">{row.phone || "—"}</p>
+                    <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
+                      Code {row.invite_code ?? "------"}
+                    </p>
+                  </div>
+                  {row.banned ? <Pill tone="bad">Banned</Pill> : <Pill tone="good">Active</Pill>}
                 </div>
-                {row.banned ? <Pill tone="bad">Banned</Pill> : <Pill tone="good">Active</Pill>}
-              </div>
-              <div className="mt-3 grid grid-cols-3 gap-2 text-[13px]">
-                <div>
-                  <p className="text-muted-foreground">Balance</p>
-                  <p className="font-semibold">{ugx(row.balance)}</p>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-[13px]">
+                  <div>
+                    <p className="text-muted-foreground">Balance</p>
+                    <p className="font-semibold">{ugx(row.balance)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Recharge</p>
+                    <p className="font-semibold">{ugx(row.recharge_balance)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Products</p>
+                    <p className="font-semibold">{row.products_count}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Recharge</p>
-                  <p className="font-semibold">{ugx(row.recharge_balance)}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground">Products</p>
-                  <p className="font-semibold">{row.products_count}</p>
-                </div>
-              </div>
-            </button>
+              </button>
+            </div>
           </AdminCard>
         ))
       )}
 
       {openId ? <UserDetail userId={openId} onClose={() => setOpenId(null)} /> : null}
+      {viewSrc ? <AvatarViewer src={viewSrc} onClose={() => setViewSrc(null)} /> : null}
     </div>
   );
 }
+
 
 function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }) {
   const queryClient = useQueryClient();
