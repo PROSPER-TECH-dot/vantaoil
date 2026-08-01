@@ -11,6 +11,7 @@ type Row = {
   full_name: string | null;
   phone: string | null;
   email: string | null;
+  avatar_url: string | null;
   balance: number;
   recharge_balance: number;
   cumulative_income: number;
