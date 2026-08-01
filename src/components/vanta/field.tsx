@@ -1,4 +1,9 @@
-import { useState, type InputHTMLAttributes, type ReactNode } from "react";
+import {
+  useState,
+  type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from "react";
 
 type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
@@ -54,7 +59,7 @@ export function SubmitButton({
   children,
   loading,
   ...props
-}: { children: ReactNode; loading?: boolean } & InputHTMLAttributes<HTMLButtonElement>) {
+}: { children: ReactNode; loading?: boolean } & ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type="submit"
