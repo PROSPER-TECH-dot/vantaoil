@@ -10,7 +10,6 @@ type Row = {
   id: string;
   full_name: string | null;
   phone: string | null;
-  email: string | null;
   avatar_url: string | null;
   balance: number;
   recharge_balance: number;
@@ -25,7 +24,7 @@ type Row = {
 type Referral = { id: string; phone: string | null; avatar_url: string | null; created_at: string; recharge: number };
 
 type Detail = {
-  profile: Row & { checkin_days: number; referred_by: string | null; avatar_url: string | null };
+  profile: Row & { checkin_days: number; referred_by: string | null; email: string | null };
   referrer: string | null;
   purchases: {
     id: string; name: string; price: number; daily: number; term: string; total: number; created_at: string;
@@ -36,6 +35,12 @@ type Detail = {
   referrals: Referral[];
   referrals_l2: Referral[];
   referrals_l3: Referral[];
+  recharge_l1: number;
+  recharge_l2: number;
+  recharge_l3: number;
+  commission_l1: number;
+  commission_l2: number;
+  commission_l3: number;
   team_recharge: number;
   team_commission: number;
   is_admin: boolean;
@@ -46,17 +51,43 @@ function termDays(term: string) {
   return match ? Number(match[0]) : 0;
 }
 
-function Avatar({ url, label, size = 40 }: { url: string | null | undefined; label: string | null; size?: number }) {
-  if (url) {
+function useAvatarUrl(path: string | null | undefined) {
+  return useQuery({
+    queryKey: ["admin", "avatar", path],
+    enabled: Boolean(path),
+    staleTime: 30 * 60_000,
+    queryFn: async () => {
+      const value = path as string;
+      if (/^https?:\/\//.test(value)) return value;
+      const { data } = await supabase.storage.from("avatars").createSignedUrl(value, 60 * 60);
+      return data?.signedUrl ?? null;
+    },
+  });
+}
+
+function Avatar({
+  url,
+  label,
+  size = 40,
+  onView,
+}: {
+  url: string | null | undefined;
+  label: string | null;
+  size?: number;
+  onView?: (src: string) => void;
+}) {
+  const { data: src } = useAvatarUrl(url);
+  if (src) {
     return (
       <img
-        src={url}
+        src={src}
         alt={label ? `${label} profile picture` : "Member profile picture"}
         width={size}
         height={size}
         loading="lazy"
+        onClick={onView ? (e) => { e.stopPropagation(); onView(src); } : undefined}
         style={{ width: size, height: size }}
-        className="shrink-0 rounded-full object-cover"
+        className="press shrink-0 rounded-full object-cover"
       />
     );
   }
@@ -69,6 +100,20 @@ function Avatar({ url, label, size = 40 }: { url: string | null | undefined; lab
     </span>
   );
 }
+
+function AvatarViewer({ src, onClose }: { src: string; onClose: () => void }) {
+  return (
+    <div
+      role="dialog"
+      aria-label="Profile picture"
+      onClick={onClose}
+      className="fixed inset-0 z-[80] grid place-items-center bg-night/90 p-6"
+    >
+      <img src={src} alt="Member profile picture in full view" className="max-h-[80vh] w-auto max-w-full rounded-2xl object-contain" />
+    </div>
+  );
+}
+
 
 export function UsersTab() {
   const [search, setSearch] = useState("");
