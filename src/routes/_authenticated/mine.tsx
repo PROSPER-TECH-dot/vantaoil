@@ -199,7 +199,12 @@ function MinePage() {
             <button
               key={item.label}
               type="button"
-              onClick={() => showPillToast(`${item.label} is coming soon`)}
+              onClick={() =>
+                "to" in item && item.to
+                  ? navigate({ to: item.to })
+                  : showPillToast(`${item.label} is coming soon`)
+              }
+
               className="press flex flex-col items-center gap-2 text-muted-foreground"
             >
               {item.icon}
@@ -243,7 +248,12 @@ function MinePage() {
           <button
             key={tool.label}
             type="button"
-            onClick={() => showPillToast(`${tool.label} is coming soon`)}
+            onClick={() =>
+              tool.to
+                ? navigate({ to: tool.to })
+                : showPillToast(`${tool.label} is coming soon`)
+            }
+
             className="press flex flex-col items-center gap-2 px-1 text-center"
           >
             {tool.icon}
