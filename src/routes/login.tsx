@@ -7,6 +7,7 @@ import { PillInput, PasswordInput, PillButton } from "@/components/vanta/auth-ui
 import { useLoading } from "@/components/vanta/loading";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { phoneToEmail } from "@/lib/phone";
+import { setupAccount } from "@/lib/vanta";
 import authImage from "@/assets/oil-login.jpg";
 
 export const Route = createFileRoute("/login")({
