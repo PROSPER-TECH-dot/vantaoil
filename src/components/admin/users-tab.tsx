@@ -271,11 +271,9 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
         <div className="space-y-5">
           <section>
             <div className="mb-2 flex items-center gap-3">
-              <Avatar url={p?.avatar_url} label={p?.phone ?? null} size={56} />
-              <p className="text-[15px] font-semibold">{p?.phone || p?.email || "—"}</p>
+              <Avatar url={p?.avatar_url} label={p?.phone ?? null} size={56} onView={setViewSrc} />
+              <p className="text-[15px] font-semibold">{p?.phone || "—"}</p>
             </div>
-            <KV label="Name" value={p?.full_name || "—"} />
-            <KV label="Email" value={p?.email || "—"} />
             <KV label="Invite code" value={p?.invite_code ?? "------"} />
             <KV label="Invited by" value={data.referrer || "—"} />
             <KV label="Joined" value={p ? formatStamp(p.created_at) : "—"} />
@@ -292,31 +290,56 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
           </section>
 
           <section>
-            <h3 className="mb-1 text-[15px] font-bold">Team</h3>
-            <KV label="Level 1 referrals" value={String(data.referrals.length)} />
-            <KV label="Level 2 referrals" value={String(data.referrals_l2?.length ?? 0)} />
-            <KV label="Level 3 referrals" value={String(data.referrals_l3?.length ?? 0)} />
-            <KV label="Team recharge" value={ugx(data.team_recharge)} />
-            <KV label="Received from invites" value={ugx(data.team_commission)} />
-            {[
-              { level: "Lv1", list: data.referrals ?? [] },
-              { level: "Lv2", list: data.referrals_l2 ?? [] },
-              { level: "Lv3", list: data.referrals_l3 ?? [] },
-            ].map(({ level, list }) =>
-              list.length === 0 ? null : (
-                <div key={level} className="mt-3">
-                  <p className="text-[13px] font-semibold text-muted-foreground">{level} members</p>
-                  {list.slice(0, 20).map((r) => (
-                    <div key={r.id} className="flex items-center gap-3 py-1.5 text-[13px]">
-                      <Avatar url={r.avatar_url} label={r.phone} size={28} />
-                      <span className="min-w-0 flex-1 truncate">{r.phone || "—"}</span>
-                      <span className="shrink-0">{ugx(r.recharge)}</span>
-                    </div>
-                  ))}
+            <h3 className="mb-2 text-[15px] font-bold">Team</h3>
+            <div className="flex gap-2">
+              {([1, 2, 3] as const).map((lv) => (
+                <button
+                  key={lv}
+                  type="button"
+                  onClick={() => setLevel(lv)}
+                  className={`press rounded-full px-4 py-1.5 text-[13px] font-semibold ${
+                    level === lv ? "bg-primary text-primary-foreground" : "bg-surface text-muted-foreground"
+                  }`}
+                >
+                  Level {lv}
+                </button>
+              ))}
+            </div>
+            {(() => {
+              const list =
+                level === 1 ? data.referrals ?? [] : level === 2 ? data.referrals_l2 ?? [] : data.referrals_l3 ?? [];
+              const recharge =
+                level === 1 ? data.recharge_l1 : level === 2 ? data.recharge_l2 : data.recharge_l3;
+              const commission =
+                level === 1 ? data.commission_l1 : level === 2 ? data.commission_l2 : data.commission_l3;
+              return (
+                <div className="mt-3">
+                  <KV label={`Level ${level} members`} value={String(list.length)} />
+                  <KV label={`Level ${level} team recharge`} value={ugx(recharge ?? 0)} />
+                  <KV label={`Commission from level ${level}`} value={ugx(commission ?? 0)} />
+                  {list.length === 0 ? (
+                    <Empty />
+                  ) : (
+                    list.map((r) => (
+                      <div key={r.id} className="flex items-center gap-3 border-b border-border py-2 text-[13px]">
+                        <Avatar url={r.avatar_url} label={r.phone} size={28} onView={setViewSrc} />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate">{r.phone || "—"}</p>
+                          <p className="text-[12px] text-muted-foreground">{formatStamp(r.created_at)}</p>
+                        </div>
+                        <span className="shrink-0 font-semibold">{ugx(r.recharge)}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
-              ),
-            )}
+              );
+            })()}
+            <div className="mt-3">
+              <KV label="Total team recharge" value={ugx(data.team_recharge)} />
+              <KV label="Total received from invites" value={ugx(data.team_commission)} />
+            </div>
           </section>
+
 
 
           <section>
