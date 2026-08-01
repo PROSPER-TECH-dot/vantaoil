@@ -98,6 +98,7 @@ function MinePage() {
     },
     {
       label: "Customer Service",
+      to: "/customer-service",
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <path d="M20 13a8 8 0 1 0-3.4 6.5" />
@@ -108,6 +109,7 @@ function MinePage() {
     },
     {
       label: "Record",
+      to: null,
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <path d="M19 10V6.2A2.2 2.2 0 0 0 16.8 4H7.2A2.2 2.2 0 0 0 5 6.2v12.6A2.2 2.2 0 0 0 7.2 21h5" />
@@ -119,6 +121,7 @@ function MinePage() {
     },
     {
       label: "Regulation",
+      to: "/regulation",
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <path d="M19 11V6.2A2.2 2.2 0 0 0 16.8 4H7.2A2.2 2.2 0 0 0 5 6.2v12.6A2.2 2.2 0 0 0 7.2 21H12" />
@@ -130,6 +133,7 @@ function MinePage() {
     },
     {
       label: "Download APP",
+      to: null,
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <path d="M12 4v10M8 10.5l4 4 4-4M5 19h14" />
@@ -138,6 +142,7 @@ function MinePage() {
     },
     {
       label: "Bind bank card",
+      to: "/bind-bank",
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <rect x="3" y="5.5" width="18" height="13" rx="2.2" />
@@ -147,6 +152,7 @@ function MinePage() {
     },
     {
       label: "Change Pwd",
+      to: "/change-password",
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <rect x="4.5" y="10" width="15" height="10.5" rx="2" />
@@ -156,6 +162,7 @@ function MinePage() {
     },
     {
       label: "Redeem Gift",
+      to: null,
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <rect x="3.5" y="8.5" width="17" height="11.5" rx="1.8" />
