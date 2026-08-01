@@ -149,7 +149,7 @@ function RegisterPage() {
             name="inviteCode"
             autoComplete="off"
             defaultValue={search.code}
-            placeholder="Invitation code (optional)"
+            placeholder="Invitation code"
             error={errors["inviteCode"]}
           />
           <PillButton loading={submitting}>Register</PillButton>
