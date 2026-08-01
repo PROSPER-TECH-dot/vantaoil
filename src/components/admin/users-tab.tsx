@@ -145,7 +145,7 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
         p_wallet: wallet,
         p_direction: direction,
         p_amount: value,
-        p_note: note.trim() || undefined,
+        p_note: note.trim(),
       });
       if (error) throw error;
     },
