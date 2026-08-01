@@ -22,6 +22,8 @@ import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/h
 import { Route as AuthenticatedMineRouteImport } from './routes/_authenticated/mine'
 import { Route as AuthenticatedMyProductsRouteImport } from './routes/_authenticated/my-products'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
+import { Route as AuthenticatedRechargeRouteImport } from './routes/_authenticated/recharge'
+import { Route as AuthenticatedRechargeProblemRouteImport } from './routes/_authenticated/recharge-problem'
 import { Route as AuthenticatedRegulationRouteImport } from './routes/_authenticated/regulation'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 
@@ -91,6 +93,17 @@ const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRechargeRoute = AuthenticatedRechargeRouteImport.update({
+  id: '/recharge',
+  path: '/recharge',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRechargeProblemRoute =
+  AuthenticatedRechargeProblemRouteImport.update({
+    id: '/recharge-problem',
+    path: '/recharge-problem',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRegulationRoute = AuthenticatedRegulationRouteImport.update({
   id: '/regulation',
   path: '/regulation',
@@ -115,6 +128,8 @@ export interface FileRoutesByFullPath {
   '/mine': typeof AuthenticatedMineRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/recharge': typeof AuthenticatedRechargeRoute
+  '/recharge-problem': typeof AuthenticatedRechargeProblemRoute
   '/regulation': typeof AuthenticatedRegulationRoute
   '/team': typeof AuthenticatedTeamRoute
 }
@@ -131,6 +146,8 @@ export interface FileRoutesByTo {
   '/mine': typeof AuthenticatedMineRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/recharge': typeof AuthenticatedRechargeRoute
+  '/recharge-problem': typeof AuthenticatedRechargeProblemRoute
   '/regulation': typeof AuthenticatedRegulationRoute
   '/team': typeof AuthenticatedTeamRoute
 }
@@ -149,6 +166,8 @@ export interface FileRoutesById {
   '/_authenticated/mine': typeof AuthenticatedMineRoute
   '/_authenticated/my-products': typeof AuthenticatedMyProductsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
+  '/_authenticated/recharge': typeof AuthenticatedRechargeRoute
+  '/_authenticated/recharge-problem': typeof AuthenticatedRechargeProblemRoute
   '/_authenticated/regulation': typeof AuthenticatedRegulationRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
 }
@@ -167,6 +186,8 @@ export interface FileRouteTypes {
     | '/mine'
     | '/my-products'
     | '/products'
+    | '/recharge'
+    | '/recharge-problem'
     | '/regulation'
     | '/team'
   fileRoutesByTo: FileRoutesByTo
@@ -183,6 +204,8 @@ export interface FileRouteTypes {
     | '/mine'
     | '/my-products'
     | '/products'
+    | '/recharge'
+    | '/recharge-problem'
     | '/regulation'
     | '/team'
   id:
@@ -200,6 +223,8 @@ export interface FileRouteTypes {
     | '/_authenticated/mine'
     | '/_authenticated/my-products'
     | '/_authenticated/products'
+    | '/_authenticated/recharge'
+    | '/_authenticated/recharge-problem'
     | '/_authenticated/regulation'
     | '/_authenticated/team'
   fileRoutesById: FileRoutesById
@@ -304,6 +329,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/recharge': {
+      id: '/_authenticated/recharge'
+      path: '/recharge'
+      fullPath: '/recharge'
+      preLoaderRoute: typeof AuthenticatedRechargeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/recharge-problem': {
+      id: '/_authenticated/recharge-problem'
+      path: '/recharge-problem'
+      fullPath: '/recharge-problem'
+      preLoaderRoute: typeof AuthenticatedRechargeProblemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/regulation': {
       id: '/_authenticated/regulation'
       path: '/regulation'
@@ -331,6 +370,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMineRoute: typeof AuthenticatedMineRoute
   AuthenticatedMyProductsRoute: typeof AuthenticatedMyProductsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
+  AuthenticatedRechargeRoute: typeof AuthenticatedRechargeRoute
+  AuthenticatedRechargeProblemRoute: typeof AuthenticatedRechargeProblemRoute
   AuthenticatedRegulationRoute: typeof AuthenticatedRegulationRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
 }
@@ -345,6 +386,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMineRoute: AuthenticatedMineRoute,
   AuthenticatedMyProductsRoute: AuthenticatedMyProductsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
+  AuthenticatedRechargeRoute: AuthenticatedRechargeRoute,
+  AuthenticatedRechargeProblemRoute: AuthenticatedRechargeProblemRoute,
   AuthenticatedRegulationRoute: AuthenticatedRegulationRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
 }

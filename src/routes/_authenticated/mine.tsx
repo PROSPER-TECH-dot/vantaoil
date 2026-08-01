@@ -54,6 +54,8 @@ function MinePage() {
   const wallet = [
     {
       label: "Recharge",
+      to: "/recharge" as const,
+
       icon: (
         <svg viewBox="0 0 24 24" width="30" height="30" {...S} aria-hidden="true">
           <path d="M8.5 6.5h7l1.6 3.2A6.6 6.6 0 0 1 12 20.5a6.6 6.6 0 0 1-5.1-10.8Z" />
