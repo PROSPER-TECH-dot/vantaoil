@@ -13,8 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as AuthenticatedCheckinRouteImport } from './routes/_authenticated/checkin'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedMineRouteImport } from './routes/_authenticated/mine'
+import { Route as AuthenticatedMyProductsRouteImport } from './routes/_authenticated/my-products'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 
@@ -37,6 +39,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCheckinRoute = AuthenticatedCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -45,6 +52,11 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
 const AuthenticatedMineRoute = AuthenticatedMineRouteImport.update({
   id: '/mine',
   path: '/mine',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMyProductsRoute = AuthenticatedMyProductsRouteImport.update({
+  id: '/my-products',
+  path: '/my-products',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
@@ -62,8 +74,10 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/checkin': typeof AuthenticatedCheckinRoute
   '/home': typeof AuthenticatedHomeRoute
   '/mine': typeof AuthenticatedMineRoute
+  '/my-products': typeof AuthenticatedMyProductsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/team': typeof AuthenticatedTeamRoute
 }
@@ -71,8 +85,10 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/checkin': typeof AuthenticatedCheckinRoute
   '/home': typeof AuthenticatedHomeRoute
   '/mine': typeof AuthenticatedMineRoute
+  '/my-products': typeof AuthenticatedMyProductsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/team': typeof AuthenticatedTeamRoute
 }
@@ -82,25 +98,46 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/_authenticated/checkin': typeof AuthenticatedCheckinRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/mine': typeof AuthenticatedMineRoute
+  '/_authenticated/my-products': typeof AuthenticatedMyProductsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/login' | '/register' | '/home' | '/mine' | '/products' | '/team'
+    | '/'
+    | '/login'
+    | '/register'
+    | '/checkin'
+    | '/home'
+    | '/mine'
+    | '/my-products'
+    | '/products'
+    | '/team'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/home' | '/mine' | '/products' | '/team'
+  to:
+    | '/'
+    | '/login'
+    | '/register'
+    | '/checkin'
+    | '/home'
+    | '/mine'
+    | '/my-products'
+    | '/products'
+    | '/team'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/login'
     | '/register'
+    | '/_authenticated/checkin'
     | '/_authenticated/home'
     | '/_authenticated/mine'
+    | '/_authenticated/my-products'
     | '/_authenticated/products'
     | '/_authenticated/team'
   fileRoutesById: FileRoutesById
@@ -142,6 +179,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/checkin': {
+      id: '/_authenticated/checkin'
+      path: '/checkin'
+      fullPath: '/checkin'
+      preLoaderRoute: typeof AuthenticatedCheckinRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/home': {
       id: '/_authenticated/home'
       path: '/home'
@@ -154,6 +198,13 @@ declare module '@tanstack/react-router' {
       path: '/mine'
       fullPath: '/mine'
       preLoaderRoute: typeof AuthenticatedMineRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-products': {
+      id: '/_authenticated/my-products'
+      path: '/my-products'
+      fullPath: '/my-products'
+      preLoaderRoute: typeof AuthenticatedMyProductsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/products': {
@@ -174,15 +225,19 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCheckinRoute: typeof AuthenticatedCheckinRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedMineRoute: typeof AuthenticatedMineRoute
+  AuthenticatedMyProductsRoute: typeof AuthenticatedMyProductsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCheckinRoute: AuthenticatedCheckinRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedMineRoute: AuthenticatedMineRoute,
+  AuthenticatedMyProductsRoute: AuthenticatedMyProductsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
 }
@@ -199,13 +254,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

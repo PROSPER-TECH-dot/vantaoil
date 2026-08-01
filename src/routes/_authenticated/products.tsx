@@ -1,54 +1,219 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { PageHeader, Panel, SkeletonBlock, EmptyState } from "@/components/vanta/ui";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+
+import { useCenterToast } from "@/components/vanta/center-toast";
+import vip1 from "@/assets/product-vip1.jpg";
+import vip2 from "@/assets/product-vip2.jpg";
+import vip3 from "@/assets/product-vip3.jpg";
 
 export const Route = createFileRoute("/_authenticated/products")({
   head: () => ({
     meta: [
-      { title: "Investment products — Vanta Oil" },
-      { name: "description", content: "Browse Vanta Oil energy investment products." },
-      { property: "og:title", content: "Investment products — Vanta Oil" },
-      { property: "og:description", content: "Browse Vanta Oil energy investment products." },
+      { title: "Products — Vanta Oil" },
+      { name: "description", content: "Browse Vanta Oil energy investment products and daily income plans." },
+      { property: "og:title", content: "Products — Vanta Oil" },
+      {
+        property: "og:description",
+        content: "Browse Vanta Oil energy investment products and daily income plans.",
+      },
     ],
   }),
   component: ProductsPage,
 });
 
+type Product = {
+  id: string;
+  name: string;
+  image: string;
+  price: number;
+  term: string;
+  daily: number;
+  total: number;
+};
+
+const products: Product[] = [
+  {
+    id: "vip1",
+    name: "VIP1 Vanta Pump Jack",
+    image: vip1,
+    price: 10000,
+    term: "365-day",
+    daily: 2400,
+    total: 876000,
+  },
+  {
+    id: "vip2",
+    name: "VIP2 Vanta Storage Tank",
+    image: vip2,
+    price: 15000,
+    term: "210 days",
+    daily: 3750,
+    total: 787500,
+  },
+  {
+    id: "vip3",
+    name: "VIP3 Vanta Offshore Rig",
+    image: vip3,
+    price: 30000,
+    term: "180 days",
+    daily: 8200,
+    total: 1476000,
+  },
+];
+
+const ugx = (value: number) => `UGX ${value.toLocaleString("en-US")}`;
+
 function ProductsPage() {
+  const [pending, setPending] = useState<Product | null>(null);
+  const { showPillToast } = useCenterToast();
+
   return (
-    <div className="slide-in">
-      <PageHeader title="Products" subtitle="Curated energy investment plans" />
-      <div className="space-y-4 px-5">
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {["All plans", "Short term", "Balanced", "Long horizon"].map((label, index) => (
-            <button
-              key={label}
-              type="button"
-              className={`press shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold ${
-                index === 0
-                  ? "bg-accent text-accent-foreground"
-                  : "border border-border bg-card text-muted-foreground"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+    <div className="slide-in min-h-dvh bg-surface pb-6">
+      <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-5">
+        <h1 className="truncate text-3xl font-bold">Product</h1>
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-background text-[13px] font-bold tracking-tight">
+          VANTA
+        </span>
+      </header>
+
+      <section className="px-4">
+        <div
+          className="relative overflow-hidden rounded-3xl px-6 py-7"
+          style={{ background: "var(--gradient-charcoal)" }}
+        >
+          <div className="flex items-end justify-between text-charcoal-foreground">
+            <Link to="/my-products" className="press block text-left">
+              <p className="text-3xl font-bold">0</p>
+              <p className="mt-1 text-[15px] opacity-90">My Product &gt;</p>
+            </Link>
+            <Link to="/my-products" className="press block text-right">
+              <p className="text-3xl font-bold">UGX 0</p>
+              <p className="mt-1 text-[15px] opacity-90">Total revenue &gt;</p>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-4 space-y-4 px-4">
+        {products.map((product) => (
+          <article key={product.id} className="rounded-3xl bg-background p-5 shadow-[var(--shadow-soft)]">
+            <h2 className="text-center text-[19px] font-semibold">{product.name}</h2>
+            <img
+              src={product.image}
+              alt={product.name}
+              width={768}
+              height={576}
+              loading="lazy"
+              className="mx-auto my-4 h-40 w-auto object-contain"
+            />
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[22px] font-bold text-primary">{ugx(product.price)}</p>
+              <button
+                type="button"
+                onClick={() => setPending(product)}
+                className="press rounded-full bg-primary px-7 py-3 text-[16px] font-bold text-primary-foreground"
+              >
+                BUY NOW
+              </button>
+            </div>
+            <div className="mt-4 space-y-2 border-t border-border pt-4 text-[15px]">
+              <Row label="Term:" value={product.term} />
+              <Row label="Daily income:" value={ugx(product.daily)} />
+              <Row label="Total income:" value={ugx(product.total)} />
+            </div>
+          </article>
+        ))}
+      </section>
+
+      {pending ? (
+        <PurchaseDialog
+          product={pending}
+          onClose={() => setPending(null)}
+          onConfirm={() => {
+            setPending(null);
+            showPillToast("Insufficient balance to complete purchase");
+          }}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-semibold">{value}</span>
+    </div>
+  );
+}
+
+function PurchaseDialog({
+  product,
+  onClose,
+  onConfirm,
+}: {
+  product: Product;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[150] flex items-center justify-center px-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Purchase ${product.name}`}
+      style={{ backgroundColor: "color-mix(in oklab, var(--night) 55%, transparent)" }}
+      onClick={onClose}
+    >
+      <div
+        className="fade-up w-full max-w-sm rounded-3xl bg-background p-5"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center gap-4">
+          <img
+            src={product.image}
+            alt={product.name}
+            width={768}
+            height={576}
+            loading="lazy"
+            className="h-16 w-24 shrink-0 object-contain"
+          />
+          <div className="min-w-0">
+            <p className="truncate text-[16px] font-semibold">{product.name}</p>
+            <p className="mt-1 text-[19px] font-bold text-primary">{ugx(product.price)}</p>
+          </div>
         </div>
 
-        {[0, 1].map((i) => (
-          <Panel key={i} className="md:transition-transform md:hover:-translate-y-0.5">
-            <div className="flex items-center justify-between gap-4">
-              <SkeletonBlock className="h-5 w-32" />
-              <SkeletonBlock className="h-5 w-14" />
-            </div>
-            <SkeletonBlock className="mt-3 h-3.5 w-full" />
-            <SkeletonBlock className="mt-2 h-3.5 w-2/3" />
-          </Panel>
-        ))}
+        <div className="my-4 border-t border-dashed border-border" />
 
-        <EmptyState
-          title="Products launching soon"
-          description="Investment plans are being finalised and will be listed here shortly."
-        />
+        <p className="text-center text-[15px] text-muted-foreground">Income settled every 24h</p>
+        <p className="mt-1 text-center text-[14px] text-muted-foreground">
+          You can buy multiple devices to increase your income
+        </p>
+
+        <div className="mt-4 space-y-2 text-[15px]">
+          <Row label="Term:" value={product.term} />
+          <Row label="Daily income:" value={ugx(product.daily)} />
+          <Row label="Total income:" value={ugx(product.total)} />
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="press rounded-full bg-secondary py-3.5 text-[17px] font-semibold text-muted-foreground"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="press rounded-full bg-primary py-3.5 text-[17px] font-bold text-primary-foreground"
+          >
+            Confirm
+          </button>
+        </div>
       </div>
     </div>
   );

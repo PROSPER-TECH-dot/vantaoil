@@ -23,17 +23,30 @@ export function useLoading() {
   return useContext(LoadingContext);
 }
 
-/** Thin Vercel-style circular shimmer ring. */
+/** Vercel/iOS-style 12-spoke circular shimmer spinner. */
 export function RingLoader({ size = 44 }: { size?: number }) {
   return (
     <span
-      className="vanta-ring"
+      className="vanta-spinner"
       style={{ width: size, height: size }}
       role="status"
       aria-label="Loading"
-    />
+    >
+      {Array.from({ length: 12 }).map((_, i) => (
+        <span
+          key={i}
+          className="vanta-spinner-bar"
+          style={{
+            transform: `rotate(${i * 30}deg) translateY(48%)`,
+            animationDelay: `${(i - 12) * 0.1}s`,
+          }}
+        />
+
+      ))}
+    </span>
   );
 }
+
 
 export function LoadingProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
