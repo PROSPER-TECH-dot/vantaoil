@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/team")({
 });
 
 const LEVELS = [
-  { level: "Lv1", commission: "36%", tint: "var(--gradient-lv1)", text: "var(--primary)" },
+  { level: "Lv1", commission: "15%", tint: "var(--gradient-lv1)", text: "var(--primary)" },
   { level: "Lv2", commission: "3%", tint: "var(--gradient-lv2)", text: "var(--lv2)" },
   { level: "Lv3", commission: "1%", tint: "var(--gradient-lv3)", text: "var(--lv3)" },
 ];
@@ -177,7 +177,7 @@ function TeamPage() {
       <section className="mt-5 px-5 pb-28 text-[15px] leading-7">
         <p>
           When your invited friends register and buy their first product, you immediately receive a
-          cash bonus of 36% of that first purchase amount.
+          cash bonus of 15% of that first purchase amount.
         </p>
         <p>When your level 2 team members buy their first product, you receive a 3% cash bonus.</p>
         <p>When your level 3 team members buy their first product, you receive a 1% cash bonus.</p>
