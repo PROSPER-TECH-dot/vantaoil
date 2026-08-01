@@ -95,8 +95,8 @@ function RegisterPage() {
       return;
     }
 
-    startLoading(1800);
-    setTimeout(() => navigate({ to: "/home" }), 1200);
+    startLoading(1500);
+    setTimeout(() => navigate({ to: "/home" }), 1500);
   }
 
   return (
