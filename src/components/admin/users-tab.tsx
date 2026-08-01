@@ -436,6 +436,8 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
               ))
             )}
           </section>
+
+          {viewSrc ? <AvatarViewer src={viewSrc} onClose={() => setViewSrc(null)} /> : null}
         </div>
       )}
     </AdminModal>
