@@ -4,18 +4,8 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 
 import { supabase } from "@/integrations/supabase/client";
-import { ugx, useProfile } from "@/lib/vanta";
+import { productImage, ugx, useProfile } from "@/lib/vanta";
 import { useCenterToast } from "@/components/vanta/center-toast";
-import vip1 from "@/assets/product-vip1.jpg";
-import vip2 from "@/assets/product-vip2.jpg";
-import vip3 from "@/assets/product-vip3.jpg";
-import vip4 from "@/assets/product-vip4.jpg";
-import vip5 from "@/assets/product-vip5.jpg";
-import vip6 from "@/assets/product-vip6.jpg";
-import vip7 from "@/assets/product-vip7.jpg";
-import vip8 from "@/assets/product-vip8.jpg";
-import vip9 from "@/assets/product-vip9.jpg";
-import vip10 from "@/assets/product-vip10.jpg";
 
 export const Route = createFileRoute("/_authenticated/products")({
   head: () => ({
@@ -40,106 +30,35 @@ type Product = {
   term: string;
   daily: number;
   total: number;
+  sold_out: boolean;
 };
-
-const products: Product[] = [
-  {
-    id: "vip1",
-    name: "VIP1 Vanta Pump Jack",
-    image: vip1,
-    price: 10000,
-    term: "365-day",
-    daily: 2400,
-    total: 876000,
-  },
-  {
-    id: "vip2",
-    name: "VIP2 Vanta Storage Tank",
-    image: vip2,
-    price: 15000,
-    term: "210 days",
-    daily: 3750,
-    total: 787500,
-  },
-  {
-    id: "vip3",
-    name: "VIP3 Vanta Offshore Rig",
-    image: vip3,
-    price: 30000,
-    term: "180 days",
-    daily: 8200,
-    total: 1476000,
-  },
-  {
-    id: "vip4",
-    name: "VIP4 Vanta Refinery Tower",
-    image: vip4,
-    price: 60000,
-    term: "150 days",
-    daily: 17000,
-    total: 2550000,
-  },
-  {
-    id: "vip5",
-    name: "VIP5 Vanta Tanker Fleet",
-    image: vip5,
-    price: 120000,
-    term: "150 days",
-    daily: 35000,
-    total: 5250000,
-  },
-  {
-    id: "vip6",
-    name: "VIP6 Vanta Drilling Derrick",
-    image: vip6,
-    price: 250000,
-    term: "120 days",
-    daily: 78000,
-    total: 9360000,
-  },
-  {
-    id: "vip7",
-    name: "VIP7 Vanta Pumping Station",
-    image: vip7,
-    price: 400000,
-    term: "120 days",
-    daily: 128000,
-    total: 15360000,
-  },
-  {
-    id: "vip8",
-    name: "VIP8 Vanta Tank Farm",
-    image: vip8,
-    price: 700000,
-    term: "100 days",
-    daily: 231000,
-    total: 23100000,
-  },
-  {
-    id: "vip9",
-    name: "VIP9 Vanta Offshore Platform",
-    image: vip9,
-    price: 1200000,
-    term: "90 days",
-    daily: 420000,
-    total: 37800000,
-  },
-  {
-    id: "vip10",
-    name: "VIP10 Vanta Gas Compressor",
-    image: vip10,
-    price: 2000000,
-    term: "90 days",
-    daily: 720000,
-    total: 64800000,
-  },
-];
 
 function ProductsPage() {
   const [pending, setPending] = useState<Product | null>(null);
   const queryClient = useQueryClient();
   const { showPillToast, showCenterToast } = useCenterToast();
   const { data: profile } = useProfile();
+
+  const { data: products } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("id, code, name, image, price, daily, term, total, sold_out")
+        .order("sort_order");
+      if (error) throw error;
+      return (data ?? []).map((row) => ({
+        id: row.code,
+        name: row.name,
+        image: row.image,
+        price: Number(row.price),
+        daily: Number(row.daily),
+        term: row.term,
+        total: Number(row.total),
+        sold_out: row.sold_out,
+      })) as Product[];
+    },
+  });
 
   const { data: owned } = useQuery({
     queryKey: ["purchases"],
@@ -150,6 +69,7 @@ function ProductsPage() {
   });
 
   const revenue = (owned ?? []).reduce((sum, row) => sum + Number(row.total ?? 0), 0);
+  const available = revenue + Number(profile?.recharge_balance ?? 0);
 
   async function confirmPurchase(product: Product) {
     setPending(null);
@@ -190,36 +110,40 @@ function ProductsPage() {
               <p className="mt-1 text-[15px] opacity-90">My Product &gt;</p>
             </Link>
             <Link to="/my-products" className="press block text-right">
-              <p className="text-3xl font-bold">{ugx(revenue)}</p>
+              <p className="text-3xl font-bold">{ugx(available)}</p>
               <p className="mt-1 text-[15px] opacity-90">Total revenue &gt;</p>
             </Link>
           </div>
-          <p className="mt-4 text-[14px] text-charcoal-foreground/80">
-            Purchase balance: {ugx(profile?.recharge_balance ?? 0)}
-          </p>
         </div>
       </section>
 
       <section className="mt-4 space-y-4 px-4">
-        {products.map((product) => (
+        {(products ?? []).map((product) => (
           <article key={product.id} className="rounded-3xl bg-background p-5 shadow-[var(--shadow-soft)]">
             <h2 className="text-center text-[19px] font-semibold">{product.name}</h2>
             <img
-              src={product.image}
+              src={productImage(product.image)}
               alt={product.name}
               width={768}
               height={576}
               loading="lazy"
-              className="mx-auto my-4 h-40 w-auto object-contain"
+              className={`mx-auto my-4 h-40 w-auto object-contain ${product.sold_out ? "opacity-50 grayscale" : ""}`}
             />
             <div className="flex items-center justify-between gap-3">
-              <p className="text-[22px] font-bold text-primary">{ugx(product.price)}</p>
+              <p className={`text-[22px] font-bold ${product.sold_out ? "text-muted-foreground" : "text-primary"}`}>
+                {ugx(product.price)}
+              </p>
               <button
                 type="button"
+                disabled={product.sold_out}
                 onClick={() => setPending(product)}
-                className="press rounded-full bg-primary px-7 py-3 text-[16px] font-bold text-primary-foreground"
+                className={`rounded-full px-7 py-3 text-[16px] font-bold ${
+                  product.sold_out
+                    ? "cursor-not-allowed bg-secondary text-muted-foreground"
+                    : "press bg-primary text-primary-foreground"
+                }`}
               >
-                BUY NOW
+                {product.sold_out ? "SOLD OUT" : "BUY NOW"}
               </button>
             </div>
             <div className="mt-4 space-y-2 border-t border-border pt-4 text-[15px]">
@@ -230,6 +154,7 @@ function ProductsPage() {
           </article>
         ))}
       </section>
+
 
       {pending ? (
         <PurchaseDialog
@@ -284,7 +209,7 @@ function PurchaseDialogBody({
       >
         <div className="flex items-center gap-4">
           <img
-            src={product.image}
+            src={productImage(product.image)}
             alt={product.name}
             width={768}
             height={576}

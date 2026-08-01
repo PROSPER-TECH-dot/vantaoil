@@ -7,12 +7,12 @@ import { AdminCard, AdminInput, GoldButton } from "./ui";
 
 const FIELDS: { key: string; label: string; hint?: string }[] = [
   { key: "min_recharge", label: "Minimum deposit (UGX)" },
-  { key: "min_withdraw", label: "Minimum withdrawal (UGX)" },
-  { key: "withdraw_fee", label: "Withdrawal fee (%)" },
+  { key: "min_withdrawal", label: "Minimum withdrawal (UGX)" },
+  { key: "withdrawal_fee_percent", label: "Withdrawal fee (%)" },
   { key: "welcome_bonus", label: "Welcome bonus (UGX)" },
   { key: "checkin_bonus", label: "Daily check-in bonus (UGX)" },
-  { key: "support_phone", label: "Customer support phone" },
-  { key: "support_whatsapp", label: "WhatsApp / Telegram contact" },
+  { key: "support_whatsapp", label: "Customer support / WhatsApp" },
+  { key: "support_telegram", label: "Telegram contact" },
   { key: "group_link", label: "Official group link" },
 ];
 

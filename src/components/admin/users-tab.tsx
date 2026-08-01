@@ -11,6 +11,7 @@ type Row = {
   full_name: string | null;
   phone: string | null;
   email: string | null;
+  avatar_url: string | null;
   balance: number;
   recharge_balance: number;
   cumulative_income: number;
@@ -21,8 +22,10 @@ type Row = {
   created_at: string;
 };
 
+type Referral = { id: string; phone: string | null; avatar_url: string | null; created_at: string; recharge: number };
+
 type Detail = {
-  profile: Row & { checkin_days: number; referred_by: string | null };
+  profile: Row & { checkin_days: number; referred_by: string | null; avatar_url: string | null };
   referrer: string | null;
   purchases: {
     id: string; name: string; price: number; daily: number; term: string; total: number; created_at: string;
@@ -30,7 +33,9 @@ type Detail = {
   transactions: { id: string; kind: string; title: string; amount: number; created_at: string }[];
   recharges: { id: string; order_no: string; amount: number; status: string; created_at: string }[];
   withdrawals: { id: string; order_no: string; amount: number; received: number; status: string; created_at: string }[];
-  referrals: { id: string; phone: string | null; created_at: string; recharge: number }[];
+  referrals: Referral[];
+  referrals_l2: Referral[];
+  referrals_l3: Referral[];
   team_recharge: number;
   team_commission: number;
   is_admin: boolean;
@@ -39,6 +44,30 @@ type Detail = {
 function termDays(term: string) {
   const match = term.match(/\d+/);
   return match ? Number(match[0]) : 0;
+}
+
+function Avatar({ url, label, size = 40 }: { url: string | null | undefined; label: string | null; size?: number }) {
+  if (url) {
+    return (
+      <img
+        src={url}
+        alt={label ? `${label} profile picture` : "Member profile picture"}
+        width={size}
+        height={size}
+        loading="lazy"
+        style={{ width: size, height: size }}
+        className="shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+  return (
+    <span
+      style={{ width: size, height: size }}
+      className="grid shrink-0 place-items-center rounded-full bg-secondary text-[12px] font-semibold text-muted-foreground"
+    >
+      {(label ?? "?").replace(/\D/g, "").slice(-2) || "?"}
+    </span>
+  );
 }
 
 export function UsersTab() {
@@ -51,7 +80,7 @@ export function UsersTab() {
       let query = supabase
         .from("profiles")
         .select(
-          "id, full_name, phone, email, balance, recharge_balance, cumulative_income, withdrawn, products_count, invite_code, banned, created_at",
+          "id, full_name, phone, email, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, products_count, invite_code, banned, created_at",
         )
         .order("created_at", { ascending: false })
         .limit(200);
@@ -83,7 +112,8 @@ export function UsersTab() {
           <AdminCard key={row.id}>
             <button type="button" onClick={() => setOpenId(row.id)} className="press w-full text-left">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <Avatar url={row.avatar_url} label={row.phone} />
+                <div className="min-w-0 flex-1">
                   <p className="truncate text-[16px] font-semibold">{row.phone || row.email || "—"}</p>
                   <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
                     {row.full_name || "No name"} · Code {row.invite_code ?? "------"}
@@ -192,6 +222,10 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
       ) : (
         <div className="space-y-5">
           <section>
+            <div className="mb-2 flex items-center gap-3">
+              <Avatar url={p?.avatar_url} label={p?.phone ?? null} size={56} />
+              <p className="text-[15px] font-semibold">{p?.phone || p?.email || "—"}</p>
+            </div>
             <KV label="Name" value={p?.full_name || "—"} />
             <KV label="Email" value={p?.email || "—"} />
             <KV label="Invite code" value={p?.invite_code ?? "------"} />
@@ -211,16 +245,31 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
 
           <section>
             <h3 className="mb-1 text-[15px] font-bold">Team</h3>
-            <KV label="Referrals" value={String(data.referrals.length)} />
+            <KV label="Level 1 referrals" value={String(data.referrals.length)} />
+            <KV label="Level 2 referrals" value={String(data.referrals_l2?.length ?? 0)} />
+            <KV label="Level 3 referrals" value={String(data.referrals_l3?.length ?? 0)} />
             <KV label="Team recharge" value={ugx(data.team_recharge)} />
-            <KV label="Commission earned" value={ugx(data.team_commission)} />
-            {data.referrals.slice(0, 10).map((r) => (
-              <div key={r.id} className="flex items-center justify-between gap-3 py-1.5 text-[13px]">
-                <span className="truncate text-muted-foreground">{r.phone || "—"}</span>
-                <span>{ugx(r.recharge)}</span>
-              </div>
-            ))}
+            <KV label="Received from invites" value={ugx(data.team_commission)} />
+            {[
+              { level: "Lv1", list: data.referrals ?? [] },
+              { level: "Lv2", list: data.referrals_l2 ?? [] },
+              { level: "Lv3", list: data.referrals_l3 ?? [] },
+            ].map(({ level, list }) =>
+              list.length === 0 ? null : (
+                <div key={level} className="mt-3">
+                  <p className="text-[13px] font-semibold text-muted-foreground">{level} members</p>
+                  {list.slice(0, 20).map((r) => (
+                    <div key={r.id} className="flex items-center gap-3 py-1.5 text-[13px]">
+                      <Avatar url={r.avatar_url} label={r.phone} size={28} />
+                      <span className="min-w-0 flex-1 truncate">{r.phone || "—"}</span>
+                      <span className="shrink-0">{ugx(r.recharge)}</span>
+                    </div>
+                  ))}
+                </div>
+              ),
+            )}
           </section>
+
 
           <section>
             <h3 className="mb-1 text-[15px] font-bold">Purchased products</h3>
