@@ -176,11 +176,11 @@ function TeamPage() {
 
       <section className="mt-5 px-5 pb-28 text-[15px] leading-7">
         <p>
-          When your invited friends register and invest, you will immediately receive a cash bonus of
-          35% of their investment amount.
+          When your invited friends register and buy their first product, you immediately receive a
+          cash bonus of 36% of that first purchase amount.
         </p>
-        <p>When your level 2 team members invest, you will receive a 1% cash bonus.</p>
-        <p>When your level 3 team members invest, you will receive a 1% cash bonus.</p>
+        <p>When your level 2 team members buy their first product, you receive a 3% cash bonus.</p>
+        <p>When your level 3 team members buy their first product, you receive a 1% cash bonus.</p>
         <p>
           Once your team members invest, the cash bonus will be immediately deposited into your
           account balance and you can withdraw it immediately.
