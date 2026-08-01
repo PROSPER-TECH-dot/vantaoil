@@ -13,11 +13,18 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as AuthenticatedAboutRouteImport } from './routes/_authenticated/about'
+import { Route as AuthenticatedBindBankRouteImport } from './routes/_authenticated/bind-bank'
+import { Route as AuthenticatedChangePasswordRouteImport } from './routes/_authenticated/change-password'
 import { Route as AuthenticatedCheckinRouteImport } from './routes/_authenticated/checkin'
+import { Route as AuthenticatedCustomerServiceRouteImport } from './routes/_authenticated/customer-service'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedMineRouteImport } from './routes/_authenticated/mine'
 import { Route as AuthenticatedMyProductsRouteImport } from './routes/_authenticated/my-products'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
+import { Route as AuthenticatedRechargeRouteImport } from './routes/_authenticated/recharge'
+import { Route as AuthenticatedRechargeProblemRouteImport } from './routes/_authenticated/recharge-problem'
+import { Route as AuthenticatedRegulationRouteImport } from './routes/_authenticated/regulation'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 
 const IndexRoute = IndexRouteImport.update({
@@ -39,11 +46,33 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAboutRoute = AuthenticatedAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBindBankRoute = AuthenticatedBindBankRouteImport.update({
+  id: '/bind-bank',
+  path: '/bind-bank',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedChangePasswordRoute =
+  AuthenticatedChangePasswordRouteImport.update({
+    id: '/change-password',
+    path: '/change-password',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCheckinRoute = AuthenticatedCheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCustomerServiceRoute =
+  AuthenticatedCustomerServiceRouteImport.update({
+    id: '/customer-service',
+    path: '/customer-service',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -64,6 +93,22 @@ const AuthenticatedProductsRoute = AuthenticatedProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRechargeRoute = AuthenticatedRechargeRouteImport.update({
+  id: '/recharge',
+  path: '/recharge',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRechargeProblemRoute =
+  AuthenticatedRechargeProblemRouteImport.update({
+    id: '/recharge-problem',
+    path: '/recharge-problem',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRegulationRoute = AuthenticatedRegulationRouteImport.update({
+  id: '/regulation',
+  path: '/regulation',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   id: '/team',
   path: '/team',
@@ -74,22 +119,36 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/about': typeof AuthenticatedAboutRoute
+  '/bind-bank': typeof AuthenticatedBindBankRoute
+  '/change-password': typeof AuthenticatedChangePasswordRoute
   '/checkin': typeof AuthenticatedCheckinRoute
+  '/customer-service': typeof AuthenticatedCustomerServiceRoute
   '/home': typeof AuthenticatedHomeRoute
   '/mine': typeof AuthenticatedMineRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/recharge': typeof AuthenticatedRechargeRoute
+  '/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/regulation': typeof AuthenticatedRegulationRoute
   '/team': typeof AuthenticatedTeamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/about': typeof AuthenticatedAboutRoute
+  '/bind-bank': typeof AuthenticatedBindBankRoute
+  '/change-password': typeof AuthenticatedChangePasswordRoute
   '/checkin': typeof AuthenticatedCheckinRoute
+  '/customer-service': typeof AuthenticatedCustomerServiceRoute
   '/home': typeof AuthenticatedHomeRoute
   '/mine': typeof AuthenticatedMineRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/products': typeof AuthenticatedProductsRoute
+  '/recharge': typeof AuthenticatedRechargeRoute
+  '/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/regulation': typeof AuthenticatedRegulationRoute
   '/team': typeof AuthenticatedTeamRoute
 }
 export interface FileRoutesById {
@@ -98,11 +157,18 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/_authenticated/about': typeof AuthenticatedAboutRoute
+  '/_authenticated/bind-bank': typeof AuthenticatedBindBankRoute
+  '/_authenticated/change-password': typeof AuthenticatedChangePasswordRoute
   '/_authenticated/checkin': typeof AuthenticatedCheckinRoute
+  '/_authenticated/customer-service': typeof AuthenticatedCustomerServiceRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/mine': typeof AuthenticatedMineRoute
   '/_authenticated/my-products': typeof AuthenticatedMyProductsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
+  '/_authenticated/recharge': typeof AuthenticatedRechargeRoute
+  '/_authenticated/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/_authenticated/regulation': typeof AuthenticatedRegulationRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
 }
 export interface FileRouteTypes {
@@ -111,22 +177,36 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/about'
+    | '/bind-bank'
+    | '/change-password'
     | '/checkin'
+    | '/customer-service'
     | '/home'
     | '/mine'
     | '/my-products'
     | '/products'
+    | '/recharge'
+    | '/recharge-problem'
+    | '/regulation'
     | '/team'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/register'
+    | '/about'
+    | '/bind-bank'
+    | '/change-password'
     | '/checkin'
+    | '/customer-service'
     | '/home'
     | '/mine'
     | '/my-products'
     | '/products'
+    | '/recharge'
+    | '/recharge-problem'
+    | '/regulation'
     | '/team'
   id:
     | '__root__'
@@ -134,11 +214,18 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/register'
+    | '/_authenticated/about'
+    | '/_authenticated/bind-bank'
+    | '/_authenticated/change-password'
     | '/_authenticated/checkin'
+    | '/_authenticated/customer-service'
     | '/_authenticated/home'
     | '/_authenticated/mine'
     | '/_authenticated/my-products'
     | '/_authenticated/products'
+    | '/_authenticated/recharge'
+    | '/_authenticated/recharge-problem'
+    | '/_authenticated/regulation'
     | '/_authenticated/team'
   fileRoutesById: FileRoutesById
 }
@@ -179,11 +266,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/about': {
+      id: '/_authenticated/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AuthenticatedAboutRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bind-bank': {
+      id: '/_authenticated/bind-bank'
+      path: '/bind-bank'
+      fullPath: '/bind-bank'
+      preLoaderRoute: typeof AuthenticatedBindBankRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/change-password': {
+      id: '/_authenticated/change-password'
+      path: '/change-password'
+      fullPath: '/change-password'
+      preLoaderRoute: typeof AuthenticatedChangePasswordRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/checkin': {
       id: '/_authenticated/checkin'
       path: '/checkin'
       fullPath: '/checkin'
       preLoaderRoute: typeof AuthenticatedCheckinRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/customer-service': {
+      id: '/_authenticated/customer-service'
+      path: '/customer-service'
+      fullPath: '/customer-service'
+      preLoaderRoute: typeof AuthenticatedCustomerServiceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/home': {
@@ -214,6 +329,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProductsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/recharge': {
+      id: '/_authenticated/recharge'
+      path: '/recharge'
+      fullPath: '/recharge'
+      preLoaderRoute: typeof AuthenticatedRechargeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/recharge-problem': {
+      id: '/_authenticated/recharge-problem'
+      path: '/recharge-problem'
+      fullPath: '/recharge-problem'
+      preLoaderRoute: typeof AuthenticatedRechargeProblemRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/regulation': {
+      id: '/_authenticated/regulation'
+      path: '/regulation'
+      fullPath: '/regulation'
+      preLoaderRoute: typeof AuthenticatedRegulationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/team': {
       id: '/_authenticated/team'
       path: '/team'
@@ -225,20 +361,34 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAboutRoute: typeof AuthenticatedAboutRoute
+  AuthenticatedBindBankRoute: typeof AuthenticatedBindBankRoute
+  AuthenticatedChangePasswordRoute: typeof AuthenticatedChangePasswordRoute
   AuthenticatedCheckinRoute: typeof AuthenticatedCheckinRoute
+  AuthenticatedCustomerServiceRoute: typeof AuthenticatedCustomerServiceRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedMineRoute: typeof AuthenticatedMineRoute
   AuthenticatedMyProductsRoute: typeof AuthenticatedMyProductsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
+  AuthenticatedRechargeRoute: typeof AuthenticatedRechargeRoute
+  AuthenticatedRechargeProblemRoute: typeof AuthenticatedRechargeProblemRoute
+  AuthenticatedRegulationRoute: typeof AuthenticatedRegulationRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAboutRoute: AuthenticatedAboutRoute,
+  AuthenticatedBindBankRoute: AuthenticatedBindBankRoute,
+  AuthenticatedChangePasswordRoute: AuthenticatedChangePasswordRoute,
   AuthenticatedCheckinRoute: AuthenticatedCheckinRoute,
+  AuthenticatedCustomerServiceRoute: AuthenticatedCustomerServiceRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedMineRoute: AuthenticatedMineRoute,
   AuthenticatedMyProductsRoute: AuthenticatedMyProductsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
+  AuthenticatedRechargeRoute: AuthenticatedRechargeRoute,
+  AuthenticatedRechargeProblemRoute: AuthenticatedRechargeProblemRoute,
+  AuthenticatedRegulationRoute: AuthenticatedRegulationRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
 }
 

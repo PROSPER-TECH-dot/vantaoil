@@ -22,6 +22,8 @@ export const Route = createFileRoute("/_authenticated/home")({
 const actions = [
   {
     label: "Recharge",
+    to: "/recharge" as const,
+
     icon: (
       <>
         <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
@@ -42,6 +44,8 @@ const actions = [
   },
   {
     label: "Service",
+    to: "/customer-service" as const,
+
     icon: (
       <>
         <path d="M4 14v-2a8 8 0 0 1 16 0v2" />
