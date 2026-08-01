@@ -18,14 +18,17 @@ import { Route as AuthenticatedBindBankRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedChangePasswordRouteImport } from './routes/_authenticated/change-password'
 import { Route as AuthenticatedCheckinRouteImport } from './routes/_authenticated/checkin'
 import { Route as AuthenticatedCustomerServiceRouteImport } from './routes/_authenticated/customer-service'
+import { Route as AuthenticatedGiftCodeRouteImport } from './routes/_authenticated/gift-code'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedMineRouteImport } from './routes/_authenticated/mine'
 import { Route as AuthenticatedMyProductsRouteImport } from './routes/_authenticated/my-products'
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedRechargeRouteImport } from './routes/_authenticated/recharge'
 import { Route as AuthenticatedRechargeProblemRouteImport } from './routes/_authenticated/recharge-problem'
+import { Route as AuthenticatedRecordsRouteImport } from './routes/_authenticated/records'
 import { Route as AuthenticatedRegulationRouteImport } from './routes/_authenticated/regulation'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
+import { Route as AuthenticatedTeamRecordsRouteImport } from './routes/_authenticated/team-records'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -73,6 +76,11 @@ const AuthenticatedCustomerServiceRoute =
     path: '/customer-service',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedGiftCodeRoute = AuthenticatedGiftCodeRouteImport.update({
+  id: '/gift-code',
+  path: '/gift-code',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -104,6 +112,11 @@ const AuthenticatedRechargeProblemRoute =
     path: '/recharge-problem',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRecordsRoute = AuthenticatedRecordsRouteImport.update({
+  id: '/records',
+  path: '/records',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRegulationRoute = AuthenticatedRegulationRouteImport.update({
   id: '/regulation',
   path: '/regulation',
@@ -114,6 +127,12 @@ const AuthenticatedTeamRoute = AuthenticatedTeamRouteImport.update({
   path: '/team',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeamRecordsRoute =
+  AuthenticatedTeamRecordsRouteImport.update({
+    id: '/team-records',
+    path: '/team-records',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,14 +143,17 @@ export interface FileRoutesByFullPath {
   '/change-password': typeof AuthenticatedChangePasswordRoute
   '/checkin': typeof AuthenticatedCheckinRoute
   '/customer-service': typeof AuthenticatedCustomerServiceRoute
+  '/gift-code': typeof AuthenticatedGiftCodeRoute
   '/home': typeof AuthenticatedHomeRoute
   '/mine': typeof AuthenticatedMineRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/recharge': typeof AuthenticatedRechargeRoute
   '/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/records': typeof AuthenticatedRecordsRoute
   '/regulation': typeof AuthenticatedRegulationRoute
   '/team': typeof AuthenticatedTeamRoute
+  '/team-records': typeof AuthenticatedTeamRecordsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,14 +164,17 @@ export interface FileRoutesByTo {
   '/change-password': typeof AuthenticatedChangePasswordRoute
   '/checkin': typeof AuthenticatedCheckinRoute
   '/customer-service': typeof AuthenticatedCustomerServiceRoute
+  '/gift-code': typeof AuthenticatedGiftCodeRoute
   '/home': typeof AuthenticatedHomeRoute
   '/mine': typeof AuthenticatedMineRoute
   '/my-products': typeof AuthenticatedMyProductsRoute
   '/products': typeof AuthenticatedProductsRoute
   '/recharge': typeof AuthenticatedRechargeRoute
   '/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/records': typeof AuthenticatedRecordsRoute
   '/regulation': typeof AuthenticatedRegulationRoute
   '/team': typeof AuthenticatedTeamRoute
+  '/team-records': typeof AuthenticatedTeamRecordsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -162,14 +187,17 @@ export interface FileRoutesById {
   '/_authenticated/change-password': typeof AuthenticatedChangePasswordRoute
   '/_authenticated/checkin': typeof AuthenticatedCheckinRoute
   '/_authenticated/customer-service': typeof AuthenticatedCustomerServiceRoute
+  '/_authenticated/gift-code': typeof AuthenticatedGiftCodeRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/mine': typeof AuthenticatedMineRoute
   '/_authenticated/my-products': typeof AuthenticatedMyProductsRoute
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/recharge': typeof AuthenticatedRechargeRoute
   '/_authenticated/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/_authenticated/records': typeof AuthenticatedRecordsRoute
   '/_authenticated/regulation': typeof AuthenticatedRegulationRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
+  '/_authenticated/team-records': typeof AuthenticatedTeamRecordsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -182,14 +210,17 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/checkin'
     | '/customer-service'
+    | '/gift-code'
     | '/home'
     | '/mine'
     | '/my-products'
     | '/products'
     | '/recharge'
     | '/recharge-problem'
+    | '/records'
     | '/regulation'
     | '/team'
+    | '/team-records'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -200,14 +231,17 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/checkin'
     | '/customer-service'
+    | '/gift-code'
     | '/home'
     | '/mine'
     | '/my-products'
     | '/products'
     | '/recharge'
     | '/recharge-problem'
+    | '/records'
     | '/regulation'
     | '/team'
+    | '/team-records'
   id:
     | '__root__'
     | '/'
@@ -219,14 +253,17 @@ export interface FileRouteTypes {
     | '/_authenticated/change-password'
     | '/_authenticated/checkin'
     | '/_authenticated/customer-service'
+    | '/_authenticated/gift-code'
     | '/_authenticated/home'
     | '/_authenticated/mine'
     | '/_authenticated/my-products'
     | '/_authenticated/products'
     | '/_authenticated/recharge'
     | '/_authenticated/recharge-problem'
+    | '/_authenticated/records'
     | '/_authenticated/regulation'
     | '/_authenticated/team'
+    | '/_authenticated/team-records'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -301,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCustomerServiceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/gift-code': {
+      id: '/_authenticated/gift-code'
+      path: '/gift-code'
+      fullPath: '/gift-code'
+      preLoaderRoute: typeof AuthenticatedGiftCodeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/home': {
       id: '/_authenticated/home'
       path: '/home'
@@ -343,6 +387,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRechargeProblemRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/records': {
+      id: '/_authenticated/records'
+      path: '/records'
+      fullPath: '/records'
+      preLoaderRoute: typeof AuthenticatedRecordsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/regulation': {
       id: '/_authenticated/regulation'
       path: '/regulation'
@@ -357,6 +408,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/team-records': {
+      id: '/_authenticated/team-records'
+      path: '/team-records'
+      fullPath: '/team-records'
+      preLoaderRoute: typeof AuthenticatedTeamRecordsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -366,14 +424,17 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedChangePasswordRoute: typeof AuthenticatedChangePasswordRoute
   AuthenticatedCheckinRoute: typeof AuthenticatedCheckinRoute
   AuthenticatedCustomerServiceRoute: typeof AuthenticatedCustomerServiceRoute
+  AuthenticatedGiftCodeRoute: typeof AuthenticatedGiftCodeRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedMineRoute: typeof AuthenticatedMineRoute
   AuthenticatedMyProductsRoute: typeof AuthenticatedMyProductsRoute
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedRechargeRoute: typeof AuthenticatedRechargeRoute
   AuthenticatedRechargeProblemRoute: typeof AuthenticatedRechargeProblemRoute
+  AuthenticatedRecordsRoute: typeof AuthenticatedRecordsRoute
   AuthenticatedRegulationRoute: typeof AuthenticatedRegulationRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
+  AuthenticatedTeamRecordsRoute: typeof AuthenticatedTeamRecordsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -382,14 +443,17 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedChangePasswordRoute: AuthenticatedChangePasswordRoute,
   AuthenticatedCheckinRoute: AuthenticatedCheckinRoute,
   AuthenticatedCustomerServiceRoute: AuthenticatedCustomerServiceRoute,
+  AuthenticatedGiftCodeRoute: AuthenticatedGiftCodeRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedMineRoute: AuthenticatedMineRoute,
   AuthenticatedMyProductsRoute: AuthenticatedMyProductsRoute,
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedRechargeRoute: AuthenticatedRechargeRoute,
   AuthenticatedRechargeProblemRoute: AuthenticatedRechargeProblemRoute,
+  AuthenticatedRecordsRoute: AuthenticatedRecordsRoute,
   AuthenticatedRegulationRoute: AuthenticatedRegulationRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
+  AuthenticatedTeamRecordsRoute: AuthenticatedTeamRecordsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

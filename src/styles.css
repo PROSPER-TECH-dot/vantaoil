@@ -283,3 +283,15 @@
 @utility pill-toast {
   animation: pill-toast-in 0.2s ease both;
 }
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Slightly compact the whole app so content is not oversized on mobile. */
+html {
+  zoom: 0.9;
+}

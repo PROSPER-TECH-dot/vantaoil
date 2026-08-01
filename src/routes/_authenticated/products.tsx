@@ -5,6 +5,13 @@ import { useCenterToast } from "@/components/vanta/center-toast";
 import vip1 from "@/assets/product-vip1.jpg";
 import vip2 from "@/assets/product-vip2.jpg";
 import vip3 from "@/assets/product-vip3.jpg";
+import vip4 from "@/assets/product-vip4.jpg";
+import vip5 from "@/assets/product-vip5.jpg";
+import vip6 from "@/assets/product-vip6.jpg";
+import vip7 from "@/assets/product-vip7.jpg";
+import vip8 from "@/assets/product-vip8.jpg";
+import vip9 from "@/assets/product-vip9.jpg";
+import vip10 from "@/assets/product-vip10.jpg";
 
 export const Route = createFileRoute("/_authenticated/products")({
   head: () => ({
@@ -58,6 +65,69 @@ const products: Product[] = [
     term: "180 days",
     daily: 8200,
     total: 1476000,
+  },
+  {
+    id: "vip4",
+    name: "VIP4 Vanta Refinery Tower",
+    image: vip4,
+    price: 60000,
+    term: "150 days",
+    daily: 17000,
+    total: 2550000,
+  },
+  {
+    id: "vip5",
+    name: "VIP5 Vanta Tanker Fleet",
+    image: vip5,
+    price: 120000,
+    term: "150 days",
+    daily: 35000,
+    total: 5250000,
+  },
+  {
+    id: "vip6",
+    name: "VIP6 Vanta Drilling Derrick",
+    image: vip6,
+    price: 250000,
+    term: "120 days",
+    daily: 78000,
+    total: 9360000,
+  },
+  {
+    id: "vip7",
+    name: "VIP7 Vanta Pumping Station",
+    image: vip7,
+    price: 400000,
+    term: "120 days",
+    daily: 128000,
+    total: 15360000,
+  },
+  {
+    id: "vip8",
+    name: "VIP8 Vanta Tank Farm",
+    image: vip8,
+    price: 700000,
+    term: "100 days",
+    daily: 231000,
+    total: 23100000,
+  },
+  {
+    id: "vip9",
+    name: "VIP9 Vanta Offshore Platform",
+    image: vip9,
+    price: 1200000,
+    term: "90 days",
+    daily: 420000,
+    total: 37800000,
+  },
+  {
+    id: "vip10",
+    name: "VIP10 Vanta Gas Compressor",
+    image: vip10,
+    price: 2000000,
+    term: "90 days",
+    daily: 720000,
+    total: 64800000,
   },
 ];
 

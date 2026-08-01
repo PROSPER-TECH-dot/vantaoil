@@ -75,6 +75,7 @@ function MinePage() {
     },
     {
       label: "Record",
+      to: "/records" as const,
       icon: (
         <svg viewBox="0 0 24 24" width="30" height="30" {...S} aria-hidden="true">
           <rect x="5" y="4" width="14" height="17" rx="2.2" />
@@ -109,7 +110,7 @@ function MinePage() {
     },
     {
       label: "Record",
-      to: null,
+      to: "/records",
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <path d="M19 10V6.2A2.2 2.2 0 0 0 16.8 4H7.2A2.2 2.2 0 0 0 5 6.2v12.6A2.2 2.2 0 0 0 7.2 21h5" />
@@ -162,7 +163,7 @@ function MinePage() {
     },
     {
       label: "Redeem Gift",
-      to: null,
+      to: "/gift-code",
       icon: (
         <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
           <rect x="3.5" y="8.5" width="17" height="11.5" rx="1.8" />

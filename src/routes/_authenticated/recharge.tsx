@@ -21,7 +21,7 @@ const AMOUNTS = [10000, 30000, 60000, 120000, 300000, 500000, 1000000, 2000000];
 
 function RechargePage() {
   const navigate = useNavigate();
-  const { showPillToast } = useCenterToast();
+  const { showPillToast, showProcessingToast } = useCenterToast();
   const [amount, setAmount] = useState("10000");
 
   return (
@@ -115,11 +115,14 @@ function RechargePage() {
       <div className="px-4 pt-6">
         <button
           type="button"
-          onClick={() =>
-            Number(amount) < 10000
-              ? showPillToast("The minimum recharge amount is UGX 10000")
-              : showPillToast("Recharge order created")
-          }
+          onClick={async () => {
+            if (Number(amount) < 10000) {
+              showPillToast("The minimum recharge amount is UGX 10000");
+              return;
+            }
+            await showProcessingToast("Processing payment...", 2500);
+            showPillToast("Approve the payment prompt on your phone");
+          }}
           className="press mx-auto block w-[62%] rounded-full py-3.5 text-[19px] font-bold text-primary-foreground"
           style={{ background: "var(--gradient-gold)", boxShadow: "var(--shadow-gold)" }}
         >
