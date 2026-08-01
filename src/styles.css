@@ -45,6 +45,7 @@
   --color-night-foreground: var(--night-foreground);
   --color-night-input: var(--night-input);
   --color-link: var(--link);
+  --color-success: var(--success);
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
@@ -79,6 +80,7 @@
   --night-foreground: oklch(0.98 0 0);
   --night-input: oklch(0.32 0 0);
   --link: oklch(0.62 0.19 258);
+  --success: oklch(0.62 0.16 155);
 
   --lv2: oklch(0.55 0.13 265);
   --lv3: oklch(0.52 0.19 300);

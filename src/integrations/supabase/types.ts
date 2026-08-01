@@ -16,28 +16,181 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          balance: number
+          checkin_days: number
           created_at: string
+          cumulative_income: number
           email: string | null
           full_name: string | null
           id: string
+          invite_code: string | null
+          last_checkin_date: string | null
           phone: string | null
+          products_count: number
+          recharge_balance: number
+          referred_by: string | null
           updated_at: string
+          welcome_bonus_given: boolean
+          withdrawn: number
         }
         Insert: {
+          balance?: number
+          checkin_days?: number
           created_at?: string
+          cumulative_income?: number
           email?: string | null
           full_name?: string | null
           id: string
+          invite_code?: string | null
+          last_checkin_date?: string | null
           phone?: string | null
+          products_count?: number
+          recharge_balance?: number
+          referred_by?: string | null
           updated_at?: string
+          welcome_bonus_given?: boolean
+          withdrawn?: number
         }
         Update: {
+          balance?: number
+          checkin_days?: number
           created_at?: string
+          cumulative_income?: number
           email?: string | null
           full_name?: string | null
           id?: string
+          invite_code?: string | null
+          last_checkin_date?: string | null
           phone?: string | null
+          products_count?: number
+          recharge_balance?: number
+          referred_by?: string | null
           updated_at?: string
+          welcome_bonus_given?: boolean
+          withdrawn?: number
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          created_at: string
+          daily: number
+          id: string
+          image: string | null
+          name: string
+          price: number
+          product_id: string
+          term: string
+          total: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          daily: number
+          id?: string
+          image?: string | null
+          name: string
+          price: number
+          product_id: string
+          term: string
+          total: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          daily?: number
+          id?: string
+          image?: string | null
+          name?: string
+          price?: number
+          product_id?: string
+          term?: string
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      recharges: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          order_no: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          order_no: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          order_no?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kind: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          order_no: string
+          received: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          order_no: string
+          received: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          order_no?: string
+          received?: number
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -46,7 +199,92 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_recharge: {
+        Args: { p_amount: number }
+        Returns: {
+          amount: number
+          created_at: string
+          id: string
+          order_no: string
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "recharges"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      daily_checkin: {
+        Args: never
+        Returns: {
+          balance: number
+          checkin_days: number
+        }[]
+      }
+      purchase_product: {
+        Args: {
+          p_daily: number
+          p_image: string
+          p_name: string
+          p_price: number
+          p_product_id: string
+          p_term: string
+          p_total: number
+        }
+        Returns: {
+          created_at: string
+          daily: number
+          id: string
+          image: string | null
+          name: string
+          price: number
+          product_id: string
+          term: string
+          total: number
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "purchases"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      request_withdrawal: {
+        Args: { p_amount: number }
+        Returns: {
+          amount: number
+          created_at: string
+          id: string
+          order_no: string
+          received: number
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "withdrawals"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      setup_account: {
+        Args: { p_invite?: string; p_phone: string }
+        Returns: {
+          balance: number
+          invite_code: string
+        }[]
+      }
+      team_members: {
+        Args: { p_level: number }
+        Returns: {
+          account: string
+          joined: string
+          recharge: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,6 +1,6 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { BottomNav } from "@/components/vanta/bottom-nav";
+import { BottomNav, NAV_PATHS } from "@/components/vanta/bottom-nav";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -13,12 +13,15 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AppLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const showNav = (NAV_PATHS as readonly string[]).includes(pathname);
+
   return (
     <div className="min-h-dvh bg-background">
-      <div className="mx-auto w-full max-w-md pb-24">
+      <div className={`mx-auto w-full max-w-md ${showNav ? "pb-24" : ""}`}>
         <Outlet />
       </div>
-      <BottomNav />
+      {showNav ? <BottomNav /> : null}
     </div>
   );
 }

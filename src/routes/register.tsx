@@ -7,6 +7,7 @@ import { PillInput, PasswordInput, PillButton } from "@/components/vanta/auth-ui
 import { useLoading } from "@/components/vanta/loading";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { phoneToEmail } from "@/lib/phone";
+import { setupAccount } from "@/lib/vanta";
 import authImage from "@/assets/oil-auth.jpg";
 
 export const Route = createFileRoute("/register")({
@@ -24,6 +25,7 @@ export const Route = createFileRoute("/register")({
       },
     ],
   }),
+  validateSearch: (raw: Record<string, unknown>) => ({ code: typeof raw['code'] === "string" ? raw['code'] : "" }),
   component: RegisterPage,
 });
 
@@ -40,6 +42,7 @@ const schema = z
   });
 
 function RegisterPage() {
+  const search = Route.useSearch();
   const navigate = useNavigate();
   const { startLoading } = useLoading();
   const { showCenterToast, showPillToast } = useCenterToast();
@@ -94,6 +97,8 @@ function RegisterPage() {
       return;
     }
 
+    await setupAccount(phone, parsed.data.inviteCode || search.code);
+
     startLoading(1500);
     setTimeout(() => navigate({ to: "/home" }), 1500);
   }
@@ -143,6 +148,7 @@ function RegisterPage() {
           <PillInput
             name="inviteCode"
             autoComplete="off"
+            defaultValue={search.code}
             placeholder="Invitation code (optional)"
             error={errors["inviteCode"]}
           />

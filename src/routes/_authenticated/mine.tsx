@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCenterToast } from "@/components/vanta/center-toast";
+import { ugx, useProfile } from "@/lib/vanta";
 import taskImage from "@/assets/oil-plant.jpg";
+import minePattern from "@/assets/oil-rig-hero.jpg";
 
 export const Route = createFileRoute("/_authenticated/mine")({
   head: () => ({
@@ -24,24 +26,7 @@ function MinePage() {
   const queryClient = useQueryClient();
   const { showPillToast } = useCenterToast();
 
-  const { data: profile } = useQuery({
-    queryKey: ["profile"],
-    queryFn: async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData.user;
-      if (!user) return null;
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, email, phone")
-        .eq("id", user.id)
-        .maybeSingle();
-      return {
-        full_name: data?.full_name ?? (user.user_metadata["full_name"] as string | undefined) ?? "",
-        email: data?.email ?? user.email ?? "",
-        phone: data?.phone ?? "",
-      };
-    },
-  });
+  const { data: profile } = useProfile();
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -65,6 +50,7 @@ function MinePage() {
     },
     {
       label: "Withdraw",
+      to: "/withdraw" as const,
       icon: (
         <svg viewBox="0 0 24 24" width="30" height="30" {...S} aria-hidden="true">
           <rect x="3.5" y="4.5" width="17" height="7" rx="1.6" />
@@ -176,36 +162,47 @@ function MinePage() {
 
   return (
     <div className="slide-in min-h-dvh pb-28" style={{ background: "var(--gradient-mine)" }}>
-      <header className="px-5 pt-[max(1.5rem,env(safe-area-inset-top))]">
-        <p className="truncate text-[24px] font-bold">{profile?.phone || "+256 000000000"}</p>
-        <span className="mt-2 inline-block rounded-full bg-primary px-5 py-1.5 text-[16px] font-semibold text-primary-foreground">
-          Lv1
-        </span>
-      </header>
+      <div className="relative overflow-hidden">
+        <img
+          src={minePattern}
+          alt="Oil drilling rig at a mining field"
+          width={1280}
+          height={960}
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-[0.14]"
+        />
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: "linear-gradient(180deg, transparent 40%, var(--background) 100%)" }}
+        />
 
-      <section className="mt-14 grid grid-cols-2 gap-4 px-5">
-        <div className="min-w-0">
-          <p className="text-[26px] font-bold">UGX 0</p>
-          <p className="mt-1.5 text-[16px] text-muted-foreground">Account Balance</p>
-        </div>
-        <div className="min-w-0">
-          <p className="text-[26px] font-bold">UGX 0</p>
-          <p className="mt-1.5 text-[16px] text-muted-foreground">Cumulative income</p>
-        </div>
-      </section>
+        <div className="relative">
+          <header className="px-5 pt-[max(1.5rem,env(safe-area-inset-top))]">
+            <p className="truncate text-[24px] font-bold">{profile?.phone || "+256 000000000"}</p>
+            <span className="mt-2 inline-block rounded-full bg-primary px-5 py-1.5 text-[16px] font-semibold text-primary-foreground">
+              Code: {profile?.invite_code ?? "------"}
+            </span>
+          </header>
 
-      <section className="mt-6 px-4">
+          <section className="mt-14 grid grid-cols-2 gap-4 px-5 pb-4">
+            <div className="min-w-0">
+              <p className="text-[26px] font-bold">{ugx(profile?.balance ?? 0)}</p>
+              <p className="mt-1.5 text-[16px] text-muted-foreground">Account Balance</p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[26px] font-bold">{ugx(profile?.cumulative_income ?? 0)}</p>
+              <p className="mt-1.5 text-[16px] text-muted-foreground">Cumulative income</p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <section className="mt-2 px-4">
         <div className="grid grid-cols-3 rounded-2xl bg-surface py-5">
           {wallet.map((item) => (
             <button
               key={item.label}
               type="button"
-              onClick={() =>
-                "to" in item && item.to
-                  ? navigate({ to: item.to })
-                  : showPillToast(`${item.label} is coming soon`)
-              }
-
+              onClick={() => navigate({ to: item.to })}
               className="press flex flex-col items-center gap-2 text-muted-foreground"
             >
               {item.icon}

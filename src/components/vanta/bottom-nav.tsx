@@ -16,10 +16,8 @@ const tabs = [
     label: "Product",
     icon: (
       <>
-        <path d="M3.4 13.2c0-2 .6-3.6 1.6-4.7C6.4 7.1 8.8 6.4 12 6.4s5.6.7 7 2.1c1 1.1 1.6 2.7 1.6 4.7v2.7c0 1-.8 1.7-1.8 1.7h-.8c-1 0-1.8-.7-1.8-1.7v-.5H7.8v.5c0 1-.8 1.7-1.8 1.7h-.8c-1 0-1.8-.7-1.8-1.7Z" />
-        <circle cx="7.6" cy="12.4" r="1.1" fill="currentColor" stroke="none" />
-        <circle cx="16.4" cy="12.4" r="1.1" fill="currentColor" stroke="none" />
-        <path d="M10 12.6h4" />
+        <path d="M12 3.2c3.9 4.6 6.2 7.9 6.2 10.7A6.2 6.2 0 0 1 12 20.4a6.2 6.2 0 0 1-6.2-6.5C5.8 11.1 8.1 7.8 12 3.2Z" />
+        <path d="M9.1 14.4a2.9 2.9 0 0 0 2.9 2.9" />
       </>
     ),
   },
@@ -46,6 +44,8 @@ const tabs = [
     ),
   },
 ] as const;
+
+export const NAV_PATHS = tabs.map((tab) => tab.to);
 
 export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });

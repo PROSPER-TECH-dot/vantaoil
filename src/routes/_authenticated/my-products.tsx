@@ -1,4 +1,8 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+
+import { supabase } from "@/integrations/supabase/client";
+import { formatStamp, ugx } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated/my-products")({
   head: () => ({
@@ -17,6 +21,19 @@ export const Route = createFileRoute("/_authenticated/my-products")({
 
 function MyProductsPage() {
   const router = useRouter();
+  const { data: rows } = useQuery({
+    queryKey: ["purchases"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("purchases")
+        .select("id, name, image, price, daily, term, total, created_at")
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
+  const items = rows ?? [];
+  const revenue = items.reduce((sum, row) => sum + Number(row.total ?? 0), 0);
+
 
   return (
     <div className="slide-in min-h-dvh bg-surface">
@@ -54,25 +71,51 @@ function MyProductsPage() {
         >
           <div className="flex items-end justify-between text-charcoal-foreground">
             <div>
-              <p className="text-3xl font-bold">0</p>
+              <p className="text-3xl font-bold">{items.length}</p>
               <p className="mt-1 text-[15px] opacity-90">My Product</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold">UGX 0</p>
+              <p className="text-3xl font-bold">{ugx(revenue)}</p>
               <p className="mt-1 text-[15px] opacity-90">Total revenue</p>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="flex flex-col items-center justify-center px-6 py-24 text-center">
-        <svg viewBox="0 0 24 24" width="76" height="76" fill="none" stroke="currentColor" strokeWidth="1.4" className="text-border" aria-hidden="true">
-          <path d="M6 3h7l5 5v13H6z" strokeLinejoin="round" />
-          <path d="M13 3v5h5" strokeLinejoin="round" />
-          <path d="M9 12h6M9 15.5h6" strokeLinecap="round" />
-        </svg>
-        <p className="mt-4 text-[17px] text-muted-foreground">No products yet</p>
-      </div>
+      {items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center px-6 py-24 text-center">
+          <svg viewBox="0 0 24 24" width="76" height="76" fill="none" stroke="currentColor" strokeWidth="1.4" className="text-border" aria-hidden="true">
+            <path d="M6 3h7l5 5v13H6z" strokeLinejoin="round" />
+            <path d="M13 3v5h5" strokeLinejoin="round" />
+            <path d="M9 12h6M9 15.5h6" strokeLinecap="round" />
+          </svg>
+          <p className="mt-4 text-[17px] text-muted-foreground">No products yet</p>
+        </div>
+      ) : (
+        <section className="space-y-3 px-4 py-4">
+          {items.map((row) => (
+            <article key={row.id} className="flex gap-3 rounded-2xl bg-background p-4">
+              <img
+                src={row.image ?? ""}
+                alt={row.name}
+                width={120}
+                height={90}
+                loading="lazy"
+                className="h-20 w-24 shrink-0 rounded-xl object-cover"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[16px] font-semibold">{row.name}</p>
+                <p className="mt-1 text-[14px] text-muted-foreground">Term: {row.term}</p>
+                <p className="mt-1 text-[14px] text-muted-foreground">
+                  Daily income: {ugx(Number(row.daily))}
+                </p>
+                <p className="mt-1 text-[13px] text-muted-foreground">{formatStamp(row.created_at)}</p>
+              </div>
+              <p className="shrink-0 text-[16px] font-bold text-primary">{ugx(Number(row.price))}</p>
+            </article>
+          ))}
+        </section>
+      )}
     </div>
   );
 }

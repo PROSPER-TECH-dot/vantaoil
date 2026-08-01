@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
+import { useProfile } from "@/lib/vanta";
+
+
 import heroImage from "@/assets/oil-rig-hero.jpg";
 import cardsImage from "@/assets/oil-cards.jpg";
 import plantImage from "@/assets/oil-plant.jpg";
@@ -34,6 +37,7 @@ const actions = [
   },
   {
     label: "Withdraw",
+    to: "/withdraw" as const,
     icon: (
       <>
         <rect x="3.5" y="8.5" width="17" height="11" rx="2" />
@@ -67,12 +71,6 @@ const actions = [
   },
 ] as const;
 
-const stats = [
-  { value: "0.00", label: "Balance" },
-  { value: "0.00", label: "Cumulative" },
-  { value: "0", label: "Withdrawn" },
-] as const;
-
 const ticker = [
   "**49097352 recharged 38000 UGX",
   "**61663097 recharged 100000 UGX",
@@ -81,8 +79,17 @@ const ticker = [
 ];
 
 function HomePage() {
+  const { data: profile } = useProfile();
+
+  const stats = [
+    { value: (profile?.balance ?? 0).toLocaleString("en-US"), label: "Balance" },
+    { value: (profile?.cumulative_income ?? 0).toLocaleString("en-US"), label: "Cumulative" },
+    { value: (profile?.withdrawn ?? 0).toLocaleString("en-US"), label: "Withdrawn" },
+  ];
+
   return (
     <div className="slide-in bg-background">
+
       <section className="relative bg-charcoal">
         <img
           src={heroImage}
@@ -108,36 +115,28 @@ function HomePage() {
       </section>
 
       <section className="grid grid-cols-4 gap-2 px-4 pt-6 pb-5">
-        {actions.map((action) => {
-          const cls = "press flex flex-col items-center gap-2 text-[13px] font-semibold";
-          const inner = (
-            <>
-              <svg
-                viewBox="0 0 24 24"
-                width="34"
-                height="34"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                {action.icon}
-              </svg>
-              {action.label}
-            </>
-          );
-          return "to" in action ? (
-            <Link key={action.label} to={action.to} className={cls}>
-              {inner}
-            </Link>
-          ) : (
-            <button key={action.label} type="button" className={cls}>
-              {inner}
-            </button>
-          );
-        })}
+        {actions.map((action) => (
+          <Link
+            key={action.label}
+            to={action.to}
+            className="press flex flex-col items-center gap-2 text-[13px] font-semibold"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="34"
+              height="34"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              {action.icon}
+            </svg>
+            {action.label}
+          </Link>
+        ))}
       </section>
 
 

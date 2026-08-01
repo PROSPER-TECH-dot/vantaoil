@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { SubHeader } from "@/components/vanta/sub-header";
+import { supabase } from "@/integrations/supabase/client";
+import { formatStamp, ugx } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated/records")({
   head: () => ({
@@ -15,16 +18,28 @@ export const Route = createFileRoute("/_authenticated/records")({
   component: RecordsPage,
 });
 
-type Entry = { id: string; label: string; date: string; amount: number };
-
-const income: Entry[] = [];
-const withdrawals: Entry[] = [];
-
-const ugx = (value: number) => `UGX ${Math.abs(value).toLocaleString("en-US")}`;
-
 function RecordsPage() {
   const [tab, setTab] = useState<"income" | "withdrawal">("income");
-  const rows = tab === "income" ? income : withdrawals;
+
+  const { data } = useQuery({
+    queryKey: ["transactions", tab],
+    queryFn: async () => {
+      const { data: rows } = await supabase
+        .from("transactions")
+        .select("id, kind, title, amount, created_at")
+        .eq("kind", tab === "income" ? "income" : "withdrawal")
+        .order("created_at", { ascending: false });
+      return rows ?? [];
+    },
+  });
+
+  const rows = (data ?? []).map((row) => ({
+    id: row.id,
+    label: row.title,
+    date: formatStamp(row.created_at),
+    amount: tab === "income" ? Number(row.amount) : -Math.abs(Number(row.amount)),
+  }));
+
 
   return (
     <div className="slide-in min-h-dvh bg-surface">

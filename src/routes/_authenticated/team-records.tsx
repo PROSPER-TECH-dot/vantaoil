@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { SubHeader } from "@/components/vanta/sub-header";
+import { supabase } from "@/integrations/supabase/client";
+import { formatStamp } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated/team-records")({
   head: () => ({
@@ -15,15 +18,26 @@ export const Route = createFileRoute("/_authenticated/team-records")({
   component: TeamRecordsPage,
 });
 
-type Member = { id: string; account: string; date: string; amount: number };
+const LEVELS = [1, 2, 3] as const;
 
-const DATA: Record<string, Member[]> = { "Level 1": [], "Level 2": [], "Level 3": [] };
-const LEVELS = ["Level 1", "Level 2", "Level 3"] as const;
+function mask(phone: string | null) {
+  const digits = (phone ?? "").replace(/\D/g, "");
+  return `**${digits.slice(-8)}`;
+}
 
 function TeamRecordsPage() {
-  const [level, setLevel] = useState<(typeof LEVELS)[number]>("Level 1");
-  const members = DATA[level] ?? [];
-  const recharge = members.reduce((sum, m) => sum + m.amount, 0);
+  const [level, setLevel] = useState<(typeof LEVELS)[number]>(1);
+
+  const { data } = useQuery({
+    queryKey: ["team-members", level],
+    queryFn: async () => {
+      const { data: rows } = await supabase.rpc("team_members", { p_level: level });
+      return rows ?? [];
+    },
+  });
+
+  const members = data ?? [];
+  const recharge = members.reduce((sum, m) => sum + Number(m.recharge ?? 0), 0);
 
   return (
     <div className="slide-in min-h-dvh bg-surface">
@@ -42,7 +56,7 @@ function TeamRecordsPage() {
                   active ? "bg-primary font-bold text-primary-foreground" : "bg-background text-muted-foreground"
                 }`}
               >
-                {item}
+                Level {item}
               </button>
             );
           })}
@@ -65,7 +79,7 @@ function TeamRecordsPage() {
       ) : (
         <section className="space-y-3 px-4 py-4">
           {members.map((m) => (
-            <div key={m.id} className="flex items-center gap-3 rounded-2xl bg-background px-4 py-4">
+            <div key={`${m.account}-${m.joined}`} className="flex items-center gap-3 rounded-2xl bg-background px-4 py-4">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="9" cy="8" r="3" />
@@ -74,10 +88,12 @@ function TeamRecordsPage() {
                 </svg>
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[15px]">Account: {m.account}</p>
-                <p className="mt-1 text-[13px] text-muted-foreground">Date: {m.date}</p>
+                <p className="truncate text-[15px]">Account: {mask(m.account)}</p>
+                <p className="mt-1 text-[13px] text-muted-foreground">Date: {formatStamp(m.joined)}</p>
               </div>
-              <p className="shrink-0 text-[15px] font-bold">UGX {m.amount.toLocaleString("en-US")}</p>
+              <p className="shrink-0 text-[15px] font-bold">
+                UGX {Number(m.recharge ?? 0).toLocaleString("en-US")}
+              </p>
             </div>
           ))}
         </section>

@@ -1,8 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { MIN_RECHARGE } from "@/lib/vanta";
 import banner from "@/assets/recharge-banner.jpg";
 
 export const Route = createFileRoute("/_authenticated/recharge")({
@@ -17,12 +20,13 @@ export const Route = createFileRoute("/_authenticated/recharge")({
   component: RechargePage,
 });
 
-const AMOUNTS = [10000, 30000, 60000, 120000, 300000, 500000, 1000000, 2000000];
+const AMOUNTS = [20000, 30000, 60000, 120000, 300000, 500000, 1000000, 2000000];
 
 function RechargePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { showPillToast, showProcessingToast } = useCenterToast();
-  const [amount, setAmount] = useState("10000");
+  const [amount, setAmount] = useState("20000");
 
   return (
     <div className="slide-in min-h-dvh bg-surface pb-10">
@@ -31,8 +35,8 @@ function RechargePage() {
         action={
           <button
             type="button"
-            onClick={() => navigate({ to: "/recharge-problem" })}
-            aria-label="Recharge problem"
+            onClick={() => navigate({ to: "/recharge-records" })}
+            aria-label="Recharge records"
             className="press p-1"
           >
             <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -116,11 +120,17 @@ function RechargePage() {
         <button
           type="button"
           onClick={async () => {
-            if (Number(amount) < 10000) {
-              showPillToast("The minimum recharge amount is UGX 10000");
+            if (Number(amount) < MIN_RECHARGE) {
+              showPillToast(`The minimum recharge amount is UGX ${MIN_RECHARGE}`);
               return;
             }
             await showProcessingToast("Processing payment...", 2500);
+            const { error } = await supabase.rpc("create_recharge", { p_amount: Number(amount) });
+            if (error) {
+              showPillToast(error.message);
+              return;
+            }
+            await queryClient.invalidateQueries();
             showPillToast("Approve the payment prompt on your phone");
           }}
           className="press mx-auto block w-[62%] rounded-full py-3.5 text-[19px] font-bold text-primary-foreground"
@@ -139,8 +149,8 @@ function RechargePage() {
       </button>
 
       <div className="mt-5 space-y-2 px-5 text-[15.5px] leading-[1.55] text-muted-foreground">
-        <p>1. The minimum recharge amount is UGX 10000. If it is lower than the minimum amount, the money will not be credited.</p>
-        <p>2 The transfer amount must match the order you created, otherwise it will not be credited successfully.</p>
+        <p>1. The minimum recharge amount is UGX 20000. If it is lower than the minimum amount, the money will not be credited.</p>
+        <p>2. Recharged funds can only be used to purchase products. They are not withdrawable.</p>
         <p>3. The wallet number filled in must be the same as the final payment wallet number.</p>
         <p>4. Please wait for 10-20 minutes after the transfer is successful. If your money has not been credited for a long time, please submit your transfer voucher at the top of the page.</p>
       </div>
