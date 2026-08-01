@@ -4,23 +4,24 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
-import { AuthShell, Field, SubmitButton } from "@/components/vanta/field";
+import { PillInput, PasswordInput, PillButton } from "@/components/vanta/auth-ui";
 import { useLoading } from "@/components/vanta/loading";
-import heroImage from "@/assets/oil-hero.jpg";
+import { useCenterToast } from "@/components/vanta/center-toast";
+import { phoneToEmail } from "@/lib/phone";
+import authImage from "@/assets/oil-auth.jpg";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "Create your Vanta Oil account" },
+      { title: "Register — Vanta Oil" },
       {
         name: "description",
-        content:
-          "Open a Vanta Oil account in under a minute and start building a disciplined energy portfolio.",
+        content: "Create your Vanta Oil account with your phone number and start investing in oil.",
       },
-      { property: "og:title", content: "Create your Vanta Oil account" },
+      { property: "og:title", content: "Register — Vanta Oil" },
       {
         property: "og:description",
-        content: "Open a Vanta Oil account and start building a disciplined energy portfolio.",
+        content: "Create your Vanta Oil account with your phone number and start investing in oil.",
       },
     ],
   }),
@@ -29,63 +30,55 @@ export const Route = createFileRoute("/register")({
 
 const schema = z
   .object({
-    fullName: z.string().trim().min(2, "Enter your full name").max(80),
-    email: z.string().trim().email("Enter a valid email address").max(255),
-    phone: z
-      .string()
-      .trim()
-      .min(7, "Enter a valid phone number")
-      .max(20)
-      .regex(/^[+0-9 ()-]+$/, "Enter a valid phone number"),
-    password: z.string().min(8, "Use at least 8 characters").max(72),
+    phone: z.string().trim().min(6, "Enter your phone number").max(15),
+    password: z.string().min(6, "Use at least 6 characters").max(72),
     confirmPassword: z.string(),
-    terms: z.literal(true, { message: "Please accept the Terms & Privacy Policy" }),
+    inviteCode: z.string().trim().max(20).optional(),
   })
   .refine((v) => v.password === v.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords do not match",
   });
 
-type Errors = Partial<Record<string, string>>;
-
 function RegisterPage() {
   const navigate = useNavigate();
   const { startLoading } = useLoading();
-  const [errors, setErrors] = useState<Errors>({});
+  const { showCenterToast } = useCenterToast();
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [terms, setTerms] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const parsed = schema.safeParse({
-      fullName: String(form.get("fullName") ?? ""),
-      email: String(form.get("email") ?? ""),
       phone: String(form.get("phone") ?? ""),
       password: String(form.get("password") ?? ""),
       confirmPassword: String(form.get("confirmPassword") ?? ""),
-      terms,
+      inviteCode: String(form.get("inviteCode") ?? ""),
     });
 
     if (!parsed.success) {
-      const next: Errors = {};
+      const next: Record<string, string> = {};
       for (const issue of parsed.error.issues) {
         const key = String(issue.path[0]);
         if (!next[key]) next[key] = issue.message;
       }
       setErrors(next);
-      toast.error("Please check the highlighted fields");
       return;
     }
 
     setErrors({});
     setSubmitting(true);
+    const phone = `+256${parsed.data.phone.replace(/\D/g, "").replace(/^0+/, "")}`;
     const { data, error } = await supabase.auth.signUp({
-      email: parsed.data.email,
+      email: phoneToEmail(parsed.data.phone),
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/home`,
-        data: { full_name: parsed.data.fullName, phone: parsed.data.phone },
+        data: {
+          full_name: phone,
+          phone,
+          invite_code: parsed.data.inviteCode ?? "",
+        },
       },
     });
     setSubmitting(false);
@@ -95,103 +88,74 @@ function RegisterPage() {
       return;
     }
 
+    showCenterToast("Account created successfully");
+
     if (!data.session) {
-      toast.success("Account created", {
-        description: "Check your inbox to confirm your email address, then sign in.",
-      });
       navigate({ to: "/login" });
       return;
     }
 
-    toast.success("Account created successfully", {
-      description: "Welcome to Vanta Oil.",
-    });
     startLoading(1800);
     navigate({ to: "/home" });
   }
 
   return (
-    <AuthShell
-      eyebrow="Vanta Oil"
-      title="Create your account"
-      description="Join a platform built for long-term energy investors."
-      footer={
-        <>
-          Already have an account?{" "}
-          <Link to="/login" className="font-semibold text-accent-foreground underline-offset-4 hover:underline">
-            Sign in
-          </Link>
-        </>
-      }
-    >
+    <main className="relative min-h-dvh overflow-hidden bg-night text-night-foreground">
       <img
-        src={heroImage}
-        alt="Black oil droplet on a stone podium next to a rising gold chart"
+        src={authImage}
+        alt="Oil mining pumpjack at dusk"
         width={1024}
-        height={768}
-        className="mb-5 h-36 w-full rounded-2xl object-cover"
+        height={1024}
+        className="pointer-events-none absolute inset-x-0 top-0 h-[46vh] w-full object-cover opacity-90"
       />
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <Field
-          label="Full name"
-          name="fullName"
-          autoComplete="name"
-          placeholder="Amara Bennett"
-          error={errors["fullName"]}
-        />
-        <Field
-          label="Email address"
-          name="email"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          placeholder="you@company.com"
-          error={errors["email"]}
-        />
-        <Field
-          label="Phone number"
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder="+1 555 018 2274"
-          error={errors["phone"]}
-        />
-        <Field
-          label="Password"
-          name="password"
-          toggleable
-          autoComplete="new-password"
-          placeholder="At least 8 characters"
-          error={errors["password"]}
-        />
-        <Field
-          label="Confirm password"
-          name="confirmPassword"
-          toggleable
-          autoComplete="new-password"
-          placeholder="Repeat your password"
-          error={errors["confirmPassword"]}
-        />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[46vh]"
+        style={{
+          background:
+            "linear-gradient(180deg, color-mix(in oklab, var(--night) 45%, transparent) 0%, transparent 25%, color-mix(in oklab, var(--night) 92%, transparent) 80%, var(--night) 100%)",
+        }}
+      />
 
-        <label className="flex items-start gap-3 text-[13px] leading-relaxed text-muted-foreground">
-          <input
-            type="checkbox"
-            checked={terms}
-            onChange={(e) => setTerms(e.target.checked)}
-            className="mt-0.5 h-4.5 w-4.5 shrink-0 rounded-md accent-[oklch(0.71_0.113_92.3)]"
+      <div className="relative mx-auto flex min-h-dvh w-full max-w-md flex-col px-8 pt-[46vh] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+        <h1 className="text-center text-[2.6rem] leading-none font-normal">Register</h1>
+
+        <form onSubmit={handleSubmit} className="mt-auto space-y-4" noValidate>
+          <PillInput
+            prefix="+256"
+            name="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="Enter phone number"
+            error={errors["phone"]}
           />
-          <span>
-            I agree to the <span className="font-semibold text-foreground">Terms of Service</span>{" "}
-            and <span className="font-semibold text-foreground">Privacy Policy</span>.
-          </span>
-        </label>
-        {errors["terms"] ? (
-          <p className="text-[12.5px] font-medium text-destructive">{errors["terms"]}</p>
-        ) : null}
+          <PasswordInput
+            name="password"
+            autoComplete="new-password"
+            placeholder="Enter password"
+            error={errors["password"]}
+          />
+          <PasswordInput
+            name="confirmPassword"
+            autoComplete="new-password"
+            placeholder="Re-enter password"
+            error={errors["confirmPassword"]}
+          />
+          <PillInput
+            name="inviteCode"
+            autoComplete="off"
+            placeholder="Invitation code (optional)"
+            error={errors["inviteCode"]}
+          />
+          <PillButton loading={submitting}>Register</PillButton>
+        </form>
 
-        <SubmitButton loading={submitting}>Create account</SubmitButton>
-      </form>
-    </AuthShell>
+        <div className="mt-6 text-center">
+          <Link to="/login" className="text-[17px] text-link underline underline-offset-4">
+            Go to login &gt;
+          </Link>
+        </div>
+      </div>
+    </main>
   );
 }

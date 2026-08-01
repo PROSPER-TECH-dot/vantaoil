@@ -41,6 +41,10 @@
   --color-surface: var(--surface);
   --color-charcoal: var(--charcoal);
   --color-charcoal-foreground: var(--charcoal-foreground);
+  --color-night: var(--night);
+  --color-night-foreground: var(--night-foreground);
+  --color-night-input: var(--night-input);
+  --color-link: var(--link);
   --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
@@ -70,6 +74,11 @@
   --surface: oklch(0.973 0.002 60);
   --charcoal: oklch(0.213 0.003 60);
   --charcoal-foreground: oklch(0.98 0.002 60);
+
+  --night: oklch(0.04 0 0);
+  --night-foreground: oklch(0.98 0 0);
+  --night-input: oklch(0.32 0 0);
+  --link: oklch(0.62 0.19 258);
 
   --gradient-gold: linear-gradient(135deg, oklch(0.78 0.1 95), oklch(0.66 0.115 88));
   --gradient-charcoal: linear-gradient(160deg, oklch(0.26 0.004 60), oklch(0.16 0.004 60));
@@ -208,4 +217,36 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+
+/* Centered iOS-style confirmation toast */
+@keyframes center-toast-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@utility center-toast {
+  animation: center-toast-in 0.22s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility ticker-track {
+  display: inline-flex;
+  min-width: 200%;
+  animation: ticker-scroll 18s linear infinite;
 }

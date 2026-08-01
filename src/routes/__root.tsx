@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LoadingProvider } from "../components/vanta/loading";
 import { Toaster } from "@/components/ui/sonner";
+import { CenterToastProvider } from "../components/vanta/center-toast";
 
 function NotFoundComponent() {
   return (
@@ -120,9 +121,11 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LoadingProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <Toaster position="top-center" richColors closeButton />
+        <CenterToastProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <Toaster position="top-center" richColors closeButton />
+        </CenterToastProvider>
       </LoadingProvider>
     </QueryClientProvider>
   );

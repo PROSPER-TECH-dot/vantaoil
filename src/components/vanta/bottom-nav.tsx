@@ -6,20 +6,19 @@ const tabs = [
     label: "Home",
     icon: (
       <>
-        <path d="M3 10.5 12 3l9 7.5" />
-        <path d="M5.5 9.5V20h13V9.5" />
+        <path d="M3.5 11 12 3.5l8.5 7.5" />
+        <path d="M6 10.4V20.5h12V10.4" />
       </>
     ),
   },
   {
     to: "/products",
-    label: "Products",
+    label: "Product",
     icon: (
       <>
-        <rect x="3.5" y="3.5" width="7" height="7" rx="2" />
-        <rect x="13.5" y="3.5" width="7" height="7" rx="2" />
-        <rect x="3.5" y="13.5" width="7" height="7" rx="2" />
-        <rect x="13.5" y="13.5" width="7" height="7" rx="2" />
+        <path d="M5 6.5c0-1.1 3.1-2 7-2s7 .9 7 2v11c0 1.1-3.1 2-7 2s-7-.9-7-2Z" />
+        <path d="M5 6.5c0 1.1 3.1 2 7 2s7-.9 7-2" />
+        <path d="M5 12c0 1.1 3.1 2 7 2s7-.9 7-2" />
       </>
     ),
   },
@@ -28,20 +27,20 @@ const tabs = [
     label: "Team",
     icon: (
       <>
-        <circle cx="9" cy="8" r="3.2" />
-        <path d="M3.2 19.5c.6-3.1 3-4.8 5.8-4.8s5.2 1.7 5.8 4.8" />
-        <path d="M16 5.4a3.2 3.2 0 0 1 0 6.2" />
-        <path d="M17.4 14.9c2.1.4 3.5 1.9 3.9 4.2" />
+        <circle cx="8.5" cy="8" r="3" />
+        <circle cx="16.5" cy="9.5" r="2.4" />
+        <path d="M3 18.5c.5-2.8 2.8-4.4 5.5-4.4s5 1.6 5.5 4.4" />
+        <path d="M16 14.4c2.2.2 3.7 1.6 4.2 4.1" />
       </>
     ),
   },
   {
     to: "/mine",
-    label: "Mine",
+    label: "My",
     icon: (
       <>
-        <circle cx="12" cy="8" r="3.6" />
-        <path d="M4.5 20c.8-3.7 3.8-5.6 7.5-5.6s6.7 1.9 7.5 5.6" />
+        <circle cx="12" cy="7.8" r="3.6" />
+        <path d="M4.8 20.5c.7-3.9 3.6-6 7.2-6s6.5 2.1 7.2 6" />
       </>
     ),
   },
@@ -53,31 +52,26 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background pb-[max(0.5rem,env(safe-area-inset-bottom))]"
     >
-      <ul
-        className="mx-auto grid max-w-md grid-cols-4 rounded-3xl border border-border bg-card/95 p-1.5 backdrop-blur-xl"
-        style={{ boxShadow: "var(--shadow-card)" }}
-      >
+      <ul className="mx-auto grid max-w-md grid-cols-4 pt-2">
         {tabs.map((tab) => {
           const active = pathname === tab.to;
           return (
             <li key={tab.to}>
               <Link
                 to={tab.to}
-                className={`press flex flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-semibold tracking-tight ${
-                  active
-                    ? "bg-accent text-accent-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                className={`press flex flex-col items-center gap-1.5 py-1 text-[13px] ${
+                  active ? "font-bold text-foreground" : "font-medium text-muted-foreground"
                 }`}
               >
                 <svg
                   viewBox="0 0 24 24"
-                  width="21"
-                  height="21"
+                  width="26"
+                  height="26"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="1.6"
+                  strokeWidth={active ? 2.1 : 1.7}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden="true"
