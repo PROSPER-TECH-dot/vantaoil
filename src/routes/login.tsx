@@ -1,6 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +35,7 @@ const schema = z.object({
 function LoginPage() {
   const navigate = useNavigate();
   const { startLoading } = useLoading();
-  const { showCenterToast } = useCenterToast();
+  const { showCenterToast, showPillToast } = useCenterToast();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -67,7 +66,7 @@ function LoginPage() {
     setSubmitting(false);
 
     if (error) {
-      toast.error("We couldn't log you in", { description: error.message });
+      showPillToast(error.message);
       return;
     }
 
