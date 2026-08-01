@@ -28,8 +28,12 @@ function RechargePage() {
   const queryClient = useQueryClient();
   const { showPillToast, showProcessingToast } = useCenterToast();
   const settings = useSettings();
+  const { data: profile } = useProfile();
   const deposit = useServerFn(startDeposit);
   const [amount, setAmount] = useState("20000");
+  const [phone, setPhone] = useState("");
+  const [touchedPhone, setTouchedPhone] = useState(false);
+  const phoneValue = touchedPhone ? phone : (phone || profile?.phone || "");
 
 
   return (
