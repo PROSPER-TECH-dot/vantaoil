@@ -200,6 +200,8 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
   const [direction, setDirection] = useState("credit");
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
+  const [level, setLevel] = useState<1 | 2 | 3>(1);
+  const [viewSrc, setViewSrc] = useState<string | null>(null);
 
   const { data } = useQuery({
     queryKey: ["admin", "user", userId],
