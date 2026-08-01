@@ -12,7 +12,6 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LoadingProvider } from "../components/vanta/loading";
-import { Toaster } from "@/components/ui/sonner";
 import { CenterToastProvider } from "../components/vanta/center-toast";
 
 function NotFoundComponent() {
@@ -124,7 +123,6 @@ function RootComponent() {
         <CenterToastProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
-          <Toaster position="top-center" richColors closeButton />
         </CenterToastProvider>
       </LoadingProvider>
     </QueryClientProvider>
