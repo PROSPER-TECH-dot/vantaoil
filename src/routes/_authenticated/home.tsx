@@ -105,31 +105,37 @@ function HomePage() {
 
       <section className="grid grid-cols-4 gap-2 px-4 pt-6 pb-5">
         {actions.map((action) => {
-          const Wrapper = "to" in action ? Link : "button";
-          return (
-          <Wrapper
-            key={action.label}
-            {...("to" in action ? { to: action.to } : { type: "button" as const })}
-            className="press flex flex-col items-center gap-2 text-[13px] font-semibold"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="34"
-              height="34"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              {action.icon}
-            </svg>
-            {action.label}
-          </Wrapper>
+          const cls = "press flex flex-col items-center gap-2 text-[13px] font-semibold";
+          const inner = (
+            <>
+              <svg
+                viewBox="0 0 24 24"
+                width="34"
+                height="34"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                {action.icon}
+              </svg>
+              {action.label}
+            </>
+          );
+          return "to" in action ? (
+            <Link key={action.label} to={action.to} className={cls}>
+              {inner}
+            </Link>
+          ) : (
+            <button key={action.label} type="button" className={cls}>
+              {inner}
+            </button>
           );
         })}
       </section>
+
 
       <section className="grid grid-cols-3 gap-2.5 px-4">
         {stats.map((stat) => (
