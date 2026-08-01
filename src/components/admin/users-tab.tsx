@@ -45,6 +45,30 @@ function termDays(term: string) {
   return match ? Number(match[0]) : 0;
 }
 
+function Avatar({ url, label, size = 40 }: { url: string | null | undefined; label: string | null; size?: number }) {
+  if (url) {
+    return (
+      <img
+        src={url}
+        alt={label ? `${label} profile picture` : "Member profile picture"}
+        width={size}
+        height={size}
+        loading="lazy"
+        style={{ width: size, height: size }}
+        className="shrink-0 rounded-full object-cover"
+      />
+    );
+  }
+  return (
+    <span
+      style={{ width: size, height: size }}
+      className="grid shrink-0 place-items-center rounded-full bg-secondary text-[12px] font-semibold text-muted-foreground"
+    >
+      {(label ?? "?").replace(/\D/g, "").slice(-2) || "?"}
+    </span>
+  );
+}
+
 export function UsersTab() {
   const [search, setSearch] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
