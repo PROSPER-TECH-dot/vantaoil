@@ -1,13 +1,17 @@
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
 
+import { RingLoader } from "@/components/vanta/loading";
+
 type CenterToastContextValue = {
   showCenterToast: (message: string, duration?: number) => void;
   showPillToast: (message: string, duration?: number) => void;
+  showProcessingToast: (message?: string, duration?: number) => Promise<void>;
 };
 
 const CenterToastContext = createContext<CenterToastContextValue>({
   showCenterToast: () => {},
   showPillToast: () => {},
+  showProcessingToast: async () => {},
 });
 
 export function useCenterToast() {
@@ -17,8 +21,10 @@ export function useCenterToast() {
 export function CenterToastProvider({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState<string | null>(null);
   const [pill, setPill] = useState<string | null>(null);
+  const [processing, setProcessing] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pillTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const processingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showCenterToast = useCallback((next: string, duration = 1800) => {
     if (timer.current) clearTimeout(timer.current);
@@ -32,8 +38,21 @@ export function CenterToastProvider({ children }: { children: ReactNode }) {
     pillTimer.current = setTimeout(() => setPill(null), duration);
   }, []);
 
+  const showProcessingToast = useCallback(
+    (next = "Processing payment...", duration = 2500) =>
+      new Promise<void>((resolve) => {
+        if (processingTimer.current) clearTimeout(processingTimer.current);
+        setProcessing(next);
+        processingTimer.current = setTimeout(() => {
+          setProcessing(null);
+          resolve();
+        }, duration);
+      }),
+    [],
+  );
+
   return (
-    <CenterToastContext.Provider value={{ showCenterToast, showPillToast }}>
+    <CenterToastContext.Provider value={{ showCenterToast, showPillToast, showProcessingToast }}>
       {children}
       {message ? (
         <div
@@ -74,6 +93,21 @@ export function CenterToastProvider({ children }: { children: ReactNode }) {
             style={{ backgroundColor: "color-mix(in oklab, var(--night) 88%, transparent)" }}
           >
             {pill}
+          </div>
+        </div>
+      ) : null}
+      {processing ? (
+        <div
+          className="fixed inset-0 z-[220] flex items-center justify-center px-8"
+          role="status"
+          aria-live="polite"
+        >
+          <div
+            className="flex min-w-[220px] flex-col items-center gap-3 rounded-2xl px-8 py-6 text-night-foreground"
+            style={{ backgroundColor: "color-mix(in oklab, var(--night) 92%, transparent)" }}
+          >
+            <RingLoader size={28} />
+            <p className="text-center text-[15px] font-medium">{processing}</p>
           </div>
         </div>
       ) : null}
