@@ -79,7 +79,7 @@ export function UsersTab() {
       let query = supabase
         .from("profiles")
         .select(
-          "id, full_name, phone, email, balance, recharge_balance, cumulative_income, withdrawn, products_count, invite_code, banned, created_at",
+          "id, full_name, phone, email, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, products_count, invite_code, banned, created_at",
         )
         .order("created_at", { ascending: false })
         .limit(200);
