@@ -2,7 +2,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
-import { CHECKIN_BONUS, useProfile } from "@/lib/vanta";
+import { useProfile, useSettings } from "@/lib/vanta";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import checkinImage from "@/assets/oil-checkin.jpg";
 
@@ -27,7 +27,8 @@ function CheckinPage() {
   const { showCenterToast, showPillToast } = useCenterToast();
   const { data: profile } = useProfile();
   const days = profile?.checkin_days ?? 0;
-  const bonus = days * CHECKIN_BONUS;
+  const settings = useSettings();
+  const bonus = days * settings.checkin_bonus;
   const today = new Date().toISOString().slice(0, 10);
   const checkedIn = profile?.last_checkin_date === today;
 

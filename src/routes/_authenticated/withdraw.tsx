@@ -5,8 +5,8 @@ import { useState } from "react";
 import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { MIN_WITHDRAWAL, ugx, useProfile } from "@/lib/vanta";
-import withdrawImage from "@/assets/oil-withdraw.jpg";
+import { ugx, useProfile, useSettings } from "@/lib/vanta";
+import withdrawImage from "@/assets/pumpjack-free.png";
 
 export const Route = createFileRoute("/_authenticated/withdraw")({
   head: () => ({
@@ -33,8 +33,8 @@ function WithdrawPage() {
       showPillToast("Enter withdrawal amount");
       return;
     }
-    if (value < MIN_WITHDRAWAL) {
-      showPillToast(`The minimum withdrawal amount is UGX ${MIN_WITHDRAWAL}`);
+    if (value < settings.min_withdrawal) {
+      showPillToast(`The minimum withdrawal amount is UGX ${settings.min_withdrawal.toLocaleString("en-US")}`);
       return;
     }
     if ((profile?.products_count ?? 0) < 1) {
@@ -83,7 +83,7 @@ function WithdrawPage() {
           width={1024}
           height={768}
           loading="lazy"
-          className="mx-auto h-40 w-auto object-contain"
+          className="mx-auto block h-44 w-auto max-w-full bg-transparent object-contain"
         />
 
         <div className="px-4 pb-8">

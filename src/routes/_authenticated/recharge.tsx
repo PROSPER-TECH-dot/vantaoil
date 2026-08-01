@@ -5,7 +5,7 @@ import { useState } from "react";
 import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { MIN_RECHARGE } from "@/lib/vanta";
+import { useSettings } from "@/lib/vanta";
 import banner from "@/assets/recharge-banner.jpg";
 
 export const Route = createFileRoute("/_authenticated/recharge")({
@@ -120,8 +120,8 @@ function RechargePage() {
         <button
           type="button"
           onClick={async () => {
-            if (Number(amount) < MIN_RECHARGE) {
-              showPillToast(`The minimum recharge amount is UGX ${MIN_RECHARGE}`);
+            if (Number(amount) < settings.min_recharge) {
+              showPillToast(`The minimum recharge amount is UGX ${settings.min_recharge.toLocaleString("en-US")}`);
               return;
             }
             await showProcessingToast("Processing payment...", 2500);
