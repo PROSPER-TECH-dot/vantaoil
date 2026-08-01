@@ -80,9 +80,17 @@
   --night-input: oklch(0.32 0 0);
   --link: oklch(0.62 0.19 258);
 
+  --lv2: oklch(0.55 0.13 265);
+  --lv3: oklch(0.52 0.19 300);
+
   --gradient-gold: linear-gradient(135deg, oklch(0.78 0.1 95), oklch(0.66 0.115 88));
   --gradient-charcoal: linear-gradient(160deg, oklch(0.26 0.004 60), oklch(0.16 0.004 60));
   --gradient-surface: linear-gradient(180deg, oklch(1 0 0), oklch(0.975 0.004 92));
+  --gradient-lv1: linear-gradient(115deg, oklch(0.985 0.012 95), oklch(0.955 0.04 95));
+  --gradient-lv2: linear-gradient(115deg, oklch(0.985 0.008 285), oklch(0.945 0.032 290));
+  --gradient-lv3: linear-gradient(115deg, oklch(0.98 0.012 305), oklch(0.935 0.045 305));
+  --gradient-mine: linear-gradient(180deg, oklch(0.965 0.006 240), oklch(1 0 0));
+
   --shadow-soft: 0 1px 2px oklch(0.21 0.005 60 / 0.04), 0 8px 24px -12px oklch(0.21 0.005 60 / 0.12);
   --shadow-card: 0 1px 3px oklch(0.21 0.005 60 / 0.05), 0 18px 40px -24px oklch(0.21 0.005 60 / 0.22);
   --shadow-gold: 0 10px 30px -12px oklch(0.71 0.113 92.3 / 0.5);
