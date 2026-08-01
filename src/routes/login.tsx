@@ -73,7 +73,7 @@ function LoginPage() {
 
     showCenterToast("Login successful");
     startLoading(1800);
-    navigate({ to: "/home" });
+    setTimeout(() => navigate({ to: "/home" }), 1200);
   }
 
   return (
