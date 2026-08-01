@@ -146,14 +146,21 @@ function ProductForm({ product, onClose }: { product: Product | null; onClose: (
   async function uploadImage(file: File) {
     setUploading(true);
     const path = `products/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, "")}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+    const { error } = await supabase.storage.from("certificates").upload(path, file, { upsert: true });
     if (error) {
       setUploading(false);
       showPillToast(error.message);
       return;
     }
-    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
-    setForm((f) => ({ ...f, image: data.publicUrl }));
+    const { data, error: signError } = await supabase.storage
+      .from("certificates")
+      .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+    if (signError || !data) {
+      setUploading(false);
+      showPillToast(signError?.message ?? "Upload failed");
+      return;
+    }
+    setForm((f) => ({ ...f, image: data.signedUrl }));
     setUploading(false);
     showCenterToast("Image uploaded");
   }
