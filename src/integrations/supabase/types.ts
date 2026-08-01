@@ -156,6 +156,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           balance: number
           banned: boolean
           checkin_days: number
@@ -175,6 +176,7 @@ export type Database = {
           withdrawn: number
         }
         Insert: {
+          avatar_url?: string | null
           balance?: number
           banned?: boolean
           checkin_days?: number
@@ -194,6 +196,7 @@ export type Database = {
           withdrawn?: number
         }
         Update: {
+          avatar_url?: string | null
           balance?: number
           banned?: boolean
           checkin_days?: number
@@ -218,36 +221,45 @@ export type Database = {
         Row: {
           created_at: string
           daily: number
+          days_paid: number
           id: string
           image: string | null
           name: string
+          next_payout_at: string | null
           price: number
           product_id: string
           term: string
+          term_days: number
           total: number
           user_id: string
         }
         Insert: {
           created_at?: string
           daily: number
+          days_paid?: number
           id?: string
           image?: string | null
           name: string
+          next_payout_at?: string | null
           price: number
           product_id: string
           term: string
+          term_days?: number
           total: number
           user_id: string
         }
         Update: {
           created_at?: string
           daily?: number
+          days_paid?: number
           id?: string
           image?: string | null
           name?: string
+          next_payout_at?: string | null
           price?: number
           product_id?: string
           term?: string
+          term_days?: number
           total?: number
           user_id?: string
         }
@@ -462,12 +474,15 @@ export type Database = {
         Returns: {
           created_at: string
           daily: number
+          days_paid: number
           id: string
           image: string | null
           name: string
+          next_payout_at: string | null
           price: number
           product_id: string
           term: string
+          term_days: number
           total: number
           user_id: string
         }
@@ -498,6 +513,7 @@ export type Database = {
         }
       }
       setting_num: { Args: { _default: number; _key: string }; Returns: number }
+      settle_income: { Args: never; Returns: number }
       setup_account: {
         Args: { p_invite?: string; p_phone: string }
         Returns: {
