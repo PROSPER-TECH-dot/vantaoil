@@ -182,3 +182,30 @@
     animation: shimmer-sweep 1.6s infinite;
   }
 }
+
+/* Thin circular shimmer loader ring */
+.vanta-ring {
+  display: inline-block;
+  border-radius: 9999px;
+  border: 2px solid color-mix(in oklab, var(--charcoal) 12%, transparent);
+  border-top-color: var(--primary);
+  border-right-color: color-mix(in oklab, var(--primary) 45%, transparent);
+  animation: vanta-spin 0.9s linear infinite;
+  position: relative;
+}
+
+.vanta-ring::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  border-top-color: oklch(1 0 0 / 0.85);
+  animation: vanta-spin 1.8s linear infinite reverse;
+}
+
+@keyframes vanta-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
