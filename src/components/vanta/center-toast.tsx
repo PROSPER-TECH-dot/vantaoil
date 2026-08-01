@@ -2,10 +2,12 @@ import { createContext, useCallback, useContext, useRef, useState, type ReactNod
 
 type CenterToastContextValue = {
   showCenterToast: (message: string, duration?: number) => void;
+  showPillToast: (message: string, duration?: number) => void;
 };
 
 const CenterToastContext = createContext<CenterToastContextValue>({
   showCenterToast: () => {},
+  showPillToast: () => {},
 });
 
 export function useCenterToast() {
@@ -14,7 +16,9 @@ export function useCenterToast() {
 
 export function CenterToastProvider({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState<string | null>(null);
+  const [pill, setPill] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pillTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showCenterToast = useCallback((next: string, duration = 1800) => {
     if (timer.current) clearTimeout(timer.current);
@@ -22,8 +26,14 @@ export function CenterToastProvider({ children }: { children: ReactNode }) {
     timer.current = setTimeout(() => setMessage(null), duration);
   }, []);
 
+  const showPillToast = useCallback((next: string, duration = 2000) => {
+    if (pillTimer.current) clearTimeout(pillTimer.current);
+    setPill(next);
+    pillTimer.current = setTimeout(() => setPill(null), duration);
+  }, []);
+
   return (
-    <CenterToastContext.Provider value={{ showCenterToast }}>
+    <CenterToastContext.Provider value={{ showCenterToast, showPillToast }}>
       {children}
       {message ? (
         <div
@@ -49,6 +59,20 @@ export function CenterToastProvider({ children }: { children: ReactNode }) {
               <path d="m4 12.5 5.2 5.5L20 6" />
             </svg>
             <p className="text-center text-[17px] font-medium">{message}</p>
+          </div>
+        </div>
+      ) : null}
+      {pill ? (
+        <div
+          className="pointer-events-none fixed inset-0 z-[210] flex items-center justify-center px-8"
+          role="status"
+          aria-live="polite"
+        >
+          <div
+            className="pill-toast rounded-xl px-5 py-3 text-center text-[16px] text-night-foreground"
+            style={{ backgroundColor: "color-mix(in oklab, var(--night) 72%, transparent)" }}
+          >
+            {pill}
           </div>
         </div>
       ) : null}
