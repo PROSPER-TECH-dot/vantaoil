@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRef, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useCenterToast } from "@/components/vanta/center-toast";
-import { ugx, useProfile } from "@/lib/vanta";
+import { ugx, useIsAdmin, useProfile } from "@/lib/vanta";
 import taskImage from "@/assets/oil-plant.jpg";
 import minePattern from "@/assets/oil-rig-hero.jpg";
 
@@ -27,6 +28,7 @@ function MinePage() {
   const { showPillToast } = useCenterToast();
 
   const { data: profile } = useProfile();
+  const isAdmin = useIsAdmin();
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -160,6 +162,19 @@ function MinePage() {
     },
   ];
 
+  if (isAdmin) {
+    tools.push({
+      label: "Admin Panel",
+      to: "/admin",
+      icon: (
+        <svg viewBox="0 0 24 24" width="28" height="28" {...S} aria-hidden="true">
+          <path d="M12 3.5 4.5 6.5v5c0 4.4 3.1 8.1 7.5 9.2 4.4-1.1 7.5-4.8 7.5-9.2v-5Z" />
+          <path d="m9.4 12.1 1.9 1.9 3.4-3.7" />
+        </svg>
+      ),
+    });
+  }
+
   return (
     <div className="slide-in min-h-dvh pb-28" style={{ background: "var(--gradient-mine)" }}>
       <div className="relative overflow-hidden">
@@ -176,11 +191,14 @@ function MinePage() {
         />
 
         <div className="relative">
-          <header className="px-5 pt-[max(1.5rem,env(safe-area-inset-top))]">
-            <p className="truncate text-[24px] font-bold">{profile?.phone || "+256 000000000"}</p>
-            <span className="mt-2 inline-block rounded-full bg-primary px-5 py-1.5 text-[16px] font-semibold text-primary-foreground">
-              Code: {profile?.invite_code ?? "------"}
-            </span>
+          <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 pt-[max(1.5rem,env(safe-area-inset-top))]">
+            <div className="min-w-0">
+              <p className="truncate text-[24px] font-bold">{profile?.phone || "+256 000000000"}</p>
+              <span className="mt-2 inline-block rounded-full bg-primary px-5 py-1.5 text-[16px] font-semibold text-primary-foreground">
+                Code: {profile?.invite_code ?? "------"}
+              </span>
+            </div>
+            <AvatarUpload path={profile?.avatar_url ?? null} />
           </header>
 
           <section className="mt-14 grid grid-cols-2 gap-4 px-5 pb-4">
@@ -271,5 +289,75 @@ function MinePage() {
         </svg>
       </button>
     </div>
+  );
+}
+
+function AvatarUpload({ path }: { path: string | null }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
+  const { showPillToast } = useCenterToast();
+  const [busy, setBusy] = useState(false);
+
+  const { data: url } = useQuery({
+    queryKey: ["avatar", path],
+    enabled: Boolean(path),
+    staleTime: 30 * 60_000,
+    queryFn: async () => {
+      const { data } = await supabase.storage.from("avatars").createSignedUrl(path as string, 60 * 60);
+      return data?.signedUrl ?? null;
+    },
+  });
+
+  async function onPick(file: File) {
+    setBusy(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) return;
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const key = `${uid}/${Date.now()}.${ext}`;
+      const up = await supabase.storage.from("avatars").upload(key, file, { upsert: true });
+      if (up.error) throw up.error;
+      const { error } = await supabase.from("profiles").update({ avatar_url: key }).eq("id", uid);
+      if (error) throw error;
+      await queryClient.invalidateQueries();
+      showPillToast("Profile picture updated");
+    } catch (error) {
+      showPillToast((error as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Upload profile picture"
+        disabled={busy}
+        onClick={() => inputRef.current?.click()}
+        className="press grid h-[68px] w-[68px] shrink-0 place-items-center overflow-hidden rounded-full bg-surface"
+      >
+        {url ? (
+          <img src={url} alt="Your profile picture" className="h-full w-full object-cover" />
+        ) : (
+          <svg viewBox="0 0 24 24" width="34" height="34" {...S} aria-hidden="true" className="text-muted-foreground">
+            <circle cx="12" cy="8.5" r="3.6" />
+            <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
+          </svg>
+        )}
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void onPick(file);
+          e.target.value = "";
+        }}
+      />
+    </>
   );
 }
