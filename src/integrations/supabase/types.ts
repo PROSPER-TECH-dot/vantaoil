@@ -299,24 +299,33 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          external_reference: string | null
           id: string
+          msisdn: string | null
           order_no: string
+          provider_ref: string | null
           status: string
           user_id: string
         }
         Insert: {
           amount: number
           created_at?: string
+          external_reference?: string | null
           id?: string
+          msisdn?: string | null
           order_no: string
+          provider_ref?: string | null
           status?: string
           user_id: string
         }
         Update: {
           amount?: number
           created_at?: string
+          external_reference?: string | null
           id?: string
+          msisdn?: string | null
           order_no?: string
+          provider_ref?: string | null
           status?: string
           user_id?: string
         }
@@ -374,8 +383,11 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          external_reference: string | null
           id: string
+          msisdn: string | null
           order_no: string
+          provider_ref: string | null
           received: number
           status: string
           user_id: string
@@ -383,8 +395,11 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          external_reference?: string | null
           id?: string
+          msisdn?: string | null
           order_no: string
+          provider_ref?: string | null
           received: number
           status?: string
           user_id: string
@@ -392,8 +407,11 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          external_reference?: string | null
           id?: string
+          msisdn?: string | null
           order_no?: string
+          provider_ref?: string | null
           received?: number
           status?: string
           user_id?: string
@@ -429,22 +447,50 @@ export type Database = {
         Returns: undefined
       }
       admin_user_detail: { Args: { p_user_id: string }; Returns: Json }
-      create_recharge: {
-        Args: { p_amount: number }
-        Returns: {
-          amount: number
-          created_at: string
-          id: string
-          order_no: string
-          status: string
-          user_id: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "recharges"
-          isOneToOne: true
-          isSetofReturn: false
-        }
+      create_recharge:
+        | {
+            Args: { p_amount: number }
+            Returns: {
+              amount: number
+              created_at: string
+              external_reference: string | null
+              id: string
+              msisdn: string | null
+              order_no: string
+              provider_ref: string | null
+              status: string
+              user_id: string
+            }
+            SetofOptions: {
+              from: "*"
+              to: "recharges"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { p_amount: number; p_msisdn?: string }
+            Returns: {
+              amount: number
+              created_at: string
+              external_reference: string | null
+              id: string
+              msisdn: string | null
+              order_no: string
+              provider_ref: string | null
+              status: string
+              user_id: string
+            }
+            SetofOptions: {
+              from: "*"
+              to: "recharges"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+      credit_recharge_by_reference: {
+        Args: { p_provider_ref?: string; p_reference: string }
+        Returns: boolean
       }
       daily_checkin: {
         Args: never
@@ -452,6 +498,10 @@ export type Database = {
           balance: number
           checkin_days: number
         }[]
+      }
+      fail_recharge_by_reference: {
+        Args: { p_provider_ref?: string; p_reference: string }
+        Returns: boolean
       }
       gen_invite_code: { Args: never; Returns: string }
       has_role: {
@@ -494,26 +544,55 @@ export type Database = {
         }
       }
       redeem_gift_code: { Args: { p_code: string }; Returns: number }
-      request_withdrawal: {
-        Args: { p_amount: number }
-        Returns: {
-          amount: number
-          created_at: string
-          id: string
-          order_no: string
-          received: number
-          status: string
-          user_id: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "withdrawals"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      request_withdrawal:
+        | {
+            Args: { p_amount: number }
+            Returns: {
+              amount: number
+              created_at: string
+              external_reference: string | null
+              id: string
+              msisdn: string | null
+              order_no: string
+              provider_ref: string | null
+              received: number
+              status: string
+              user_id: string
+            }
+            SetofOptions: {
+              from: "*"
+              to: "withdrawals"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: { p_amount: number; p_msisdn?: string }
+            Returns: {
+              amount: number
+              created_at: string
+              external_reference: string | null
+              id: string
+              msisdn: string | null
+              order_no: string
+              provider_ref: string | null
+              received: number
+              status: string
+              user_id: string
+            }
+            SetofOptions: {
+              from: "*"
+              to: "withdrawals"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
       setting_num: { Args: { _default: number; _key: string }; Returns: number }
       settle_income: { Args: never; Returns: number }
+      settle_withdrawal_by_reference: {
+        Args: { p_provider_ref?: string; p_reference: string; p_status: string }
+        Returns: boolean
+      }
       setup_account: {
         Args: { p_invite?: string; p_phone: string }
         Returns: {
