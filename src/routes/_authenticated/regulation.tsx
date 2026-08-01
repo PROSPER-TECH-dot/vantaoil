@@ -1,36 +1,39 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import { SubHeader } from "@/components/vanta/sub-header";
+import { supabase } from "@/integrations/supabase/client";
+import { useSettings } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated/regulation")({
   head: () => ({
     meta: [
       { title: "Regulation — Vanta Oil" },
-      { name: "description", content: "Vanta Oil rules: referral commissions, check-in rewards and investment return plans." },
+      { name: "description", content: "Vanta Oil rules: referral commissions, check-in rewards, deposits, withdrawals and investment return plans." },
       { property: "og:title", content: "Regulation — Vanta Oil" },
-      { property: "og:description", content: "Vanta Oil rules: referral commissions, check-in rewards and investment return plans." },
+      { property: "og:description", content: "Vanta Oil rules: referral commissions, check-in rewards, deposits, withdrawals and investment return plans." },
     ],
   }),
   component: RegulationPage,
 });
 
-const HIGHLIGHTS = [
-  { icon: "🎁", text: "Register now and receive UGX2000!" },
-  { icon: "📅", text: "Daily check-in rewards UGX300!" },
-  { icon: "👥", text: "Invite friends to invest and immediately receive a high 39% cash commission!" },
-  { icon: "💸", text: "Product earnings are automatically distributed 24 hours a day." },
-  { icon: "🔥", text: "Daily returns up to 25%–40%!" },
-  { icon: "🏆", text: "A popular money-making platform in Uganda, easily start your earning journey!" },
-];
-
-const PLANS = [
-  ["UGX 20,000", "UGX 5,000"],
-  ["UGX 50,000", "UGX 13,000"],
-  ["UGX 100,000", "UGX 27,000"],
-  ["UGX 200,000", "UGX 56,000"],
-];
+const money = (value: number) => `UGX ${Number(value || 0).toLocaleString("en-US")}`;
 
 function RegulationPage() {
+  const settings = useSettings();
+
+  const { data: plans } = useQuery({
+    queryKey: ["regulation", "plans"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("code, name, price, daily, term")
+        .order("sort_order", { ascending: true })
+        .limit(4);
+      return data ?? [];
+    },
+  });
+
   return (
     <div className="slide-in min-h-dvh bg-surface">
       <SubHeader title="Regulation" />
@@ -38,8 +41,8 @@ function RegulationPage() {
       <div className="bg-charcoal px-4 py-3 text-charcoal-foreground">
         <div className="grid grid-cols-4 gap-2 text-[10px] leading-tight opacity-90">
           <p>Invest in a world-class oil producer.</p>
-          <p>Earn stable daily income every day.</p>
-          <p>Enjoy consistent returns for 300 days.</p>
+          <p>Earn stable daily income every 24 hours.</p>
+          <p>Income runs for the full product term.</p>
           <p>Higher investment, higher returns.</p>
         </div>
         <p
@@ -57,33 +60,57 @@ function RegulationPage() {
           support and mature operations, we help you quickly achieve profitability. Join now and
           seize the opportunity!
         </p>
-        <div className="space-y-1.5">
-          <p>When a friend you invite registers and invests, you will immediately receive a 35% cash reward on their investment.</p>
-          <p>When members of your second-tier team invest, you will receive a 2% cash reward.</p>
-          <p>When members of your third-tier team invest, you will receive a 2% cash reward.</p>
-          <p>Once your team members invest, the cash reward will be immediately deposited into your account balance, which you can withdraw immediately.</p>
-        </div>
 
-        <ul className="space-y-1.5">
-          {HIGHLIGHTS.map((h) => (
-            <li key={h.text}>
-              <span aria-hidden="true">{h.icon}</span> {h.text}
-            </li>
-          ))}
-        </ul>
+        <Section title="🎁 Rewards">
+          <p>New members receive a welcome bonus of {money(settings.welcome_bonus)} once the account is created with a valid invitation code.</p>
+          <p>Daily check-in rewards {money(settings.checkin_bonus)} — you can check in once every day.</p>
+          <p>Every product pays its daily income automatically every 24 hours, counted from the exact time of purchase, until the product term ends.</p>
+        </Section>
 
-        <div>
-          <p className="font-semibold">💼 Investment Return Plans</p>
-          <ul className="mt-1.5 space-y-1.5">
-            {PLANS.map(([invest, daily]) => (
-              <li key={invest}>
-                <span aria-hidden="true">💵</span> Invest {invest} <span aria-hidden="true">👉</span>{" "}
-                Daily Earnings {daily}
-              </li>
+        <Section title="👥 Referral system">
+          <p>An invitation code is required to register, so every member belongs to a team.</p>
+          <p>Level 1: when a member you invited buys their first product you instantly receive 15% of that purchase amount.</p>
+          <p>Level 2: you receive 3% of the first purchase of your level 2 members.</p>
+          <p>Level 3: you receive 1% of the first purchase of your level 3 members.</p>
+          <p>Commission is paid on the first product purchase of each team member only, and it is credited straight to your balance and cumulative income — withdrawable immediately.</p>
+        </Section>
+
+        <Section title="💰 Deposits">
+          <p>The minimum deposit is {money(settings.min_recharge)}. Anything lower will not be credited.</p>
+          <p>Deposits are made by mobile money — approve the payment prompt on your phone and the funds are credited automatically once payment is confirmed.</p>
+          <p>Deposited funds can only be used to purchase products; they are not withdrawable.</p>
+          <p>If a deposit has not arrived after 20 minutes, submit your voucher on the Recharge Problem page.</p>
+        </Section>
+
+        <Section title="🏦 Withdrawals">
+          <p>The minimum withdrawal is {money(settings.min_withdrawal)}.</p>
+          <p>The withdrawal fee is {settings.withdrawal_fee_percent}% of the withdrawal amount.</p>
+          <p>You must own at least one product before you can withdraw.</p>
+          <p>Only income — daily earnings, check-in bonuses, gift codes and team commissions — can be withdrawn.</p>
+          <p>Payouts are sent to your bound mobile money number, generally within 4 hours and within 24 hours at the latest.</p>
+        </Section>
+
+        {plans && plans.length > 0 ? (
+          <Section title="💼 Investment return plans">
+            {plans.map((plan) => (
+              <p key={plan.code}>
+                <span aria-hidden="true">💵</span> Invest {money(plan.price)} <span aria-hidden="true">👉</span>{" "}
+                Daily earnings {money(plan.daily)} for {plan.term}
+              </p>
             ))}
-          </ul>
-        </div>
+            <p>See the Products page for the full list of available plans.</p>
+          </Section>
+        ) : null}
       </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="font-semibold">{title}</p>
+      <div className="mt-1.5 space-y-1.5">{children}</div>
     </div>
   );
 }
