@@ -81,10 +81,13 @@ const ticker = [
 function HomePage() {
   const { data: profile } = useProfile();
 
+  const amount = (value: number) =>
+    Number(value || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   const stats = [
-    { value: (profile?.balance ?? 0).toLocaleString("en-US"), label: "Balance" },
-    { value: (profile?.cumulative_income ?? 0).toLocaleString("en-US"), label: "Cumulative" },
-    { value: (profile?.withdrawn ?? 0).toLocaleString("en-US"), label: "Withdrawn" },
+    { value: amount(profile?.balance ?? 0), label: "Balance" },
+    { value: amount(profile?.cumulative_income ?? 0), label: "Cumulative" },
+    { value: amount(profile?.withdrawn ?? 0), label: "Withdrawn" },
   ];
 
   return (
