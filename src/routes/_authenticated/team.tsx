@@ -29,8 +29,44 @@ const LEVELS = [
 
 function TeamPage() {
   const { showPillToast } = useCenterToast();
-  const inviteCode = "scgcga";
-  const inviteLink = `https://vantaoil.app/register?code=${inviteCode}`;
+  const { data: profile } = useProfile();
+
+  const { data: levels } = useQuery({
+    queryKey: ["team-summary"],
+    queryFn: async () => {
+      const results = await Promise.all(
+        [1, 2, 3].map(async (level) => {
+          const { data } = await supabase.rpc("team_members", { p_level: level });
+          return data ?? [];
+        }),
+      );
+      return results;
+    },
+  });
+
+  const { data: commissions } = useQuery({
+    queryKey: ["team-commissions"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("transactions")
+        .select("title, amount")
+        .eq("kind", "income")
+        .like("title", "%team commission%");
+      return data ?? [];
+    },
+  });
+
+  const rewardFor = (level: number) =>
+    (commissions ?? [])
+      .filter((row) => row.title.includes(`Level ${level}`))
+      .reduce((sum, row) => sum + Number(row.amount), 0);
+
+  const totalRewards = [1, 2, 3].reduce((sum, level) => sum + rewardFor(level), 0);
+  const totalUsers = (levels ?? []).reduce((sum, list) => sum + list.length, 0);
+
+  const inviteCode = profile?.invite_code ?? "------";
+  const inviteLink = buildInviteLink(inviteCode);
+
 
   async function copy(value: string, label: string) {
     try {
