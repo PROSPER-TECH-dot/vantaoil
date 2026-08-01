@@ -25,6 +25,7 @@ function WithdrawPage() {
   const queryClient = useQueryClient();
   const { showPillToast, showCenterToast, showProcessingToast } = useCenterToast();
   const { data: profile } = useProfile();
+  const settings = useSettings();
   const [amount, setAmount] = useState("");
 
   async function handleConfirm() {

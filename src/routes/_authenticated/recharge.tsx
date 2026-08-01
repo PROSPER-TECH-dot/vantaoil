@@ -26,6 +26,7 @@ function RechargePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { showPillToast, showProcessingToast } = useCenterToast();
+  const settings = useSettings();
   const [amount, setAmount] = useState("20000");
 
   return (
