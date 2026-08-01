@@ -14,8 +14,8 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AppLayout() {
   return (
-    <div className="min-h-dvh bg-surface">
-      <div className="mx-auto w-full max-w-md pb-28">
+    <div className="min-h-dvh bg-background">
+      <div className="mx-auto w-full max-w-md pb-24">
         <Outlet />
       </div>
       <BottomNav />
