@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 
 import teamImage from "@/assets/oil-team.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { inviteLink as buildInviteLink, ugx, useProfile } from "@/lib/vanta";
 import { useCenterToast } from "@/components/vanta/center-toast";
 
 export const Route = createFileRoute("/_authenticated/team")({
