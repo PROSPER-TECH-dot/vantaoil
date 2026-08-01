@@ -6,7 +6,7 @@ import { useState } from "react";
 import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { startDeposit } from "@/lib/payments.functions";
-import { useSettings } from "@/lib/vanta";
+import { useProfile, useSettings } from "@/lib/vanta";
 import banner from "@/assets/recharge-banner.jpg";
 
 export const Route = createFileRoute("/_authenticated/recharge")({
@@ -28,8 +28,12 @@ function RechargePage() {
   const queryClient = useQueryClient();
   const { showPillToast, showProcessingToast } = useCenterToast();
   const settings = useSettings();
+  const { data: profile } = useProfile();
   const deposit = useServerFn(startDeposit);
   const [amount, setAmount] = useState("20000");
+  const [phone, setPhone] = useState("");
+  const [touchedPhone, setTouchedPhone] = useState(false);
+  const phoneValue = touchedPhone ? phone : (phone || profile?.phone || "");
 
 
   return (
@@ -120,6 +124,25 @@ function RechargePage() {
         </div>
       </section>
 
+      <Divider label="Mobile money number" />
+
+      <section className="px-4">
+        <div className="rounded-3xl bg-background p-4">
+          <input
+            value={phoneValue}
+            onChange={(e) => {
+              setTouchedPhone(true);
+              setPhone(e.target.value.replace(/[^\d+]/g, ""));
+            }}
+            inputMode="tel"
+            maxLength={15}
+            placeholder="Enter your mobile money number e.g. 0770000000"
+            aria-label="Mobile money number"
+            className="w-full rounded-xl bg-secondary px-4 py-4 text-[16px] outline-none placeholder:text-muted-foreground"
+          />
+        </div>
+      </section>
+
       <div className="px-4 pt-6">
         <button
           type="button"
@@ -128,9 +151,14 @@ function RechargePage() {
               showPillToast(`The minimum recharge amount is UGX ${settings.min_recharge.toLocaleString("en-US")}`);
               return;
             }
+            const digits = phoneValue.replace(/\D/g, "");
+            if (digits.length < 9) {
+              showPillToast("Enter a valid mobile money number");
+              return;
+            }
             await showProcessingToast("Processing payment...", 2500);
             try {
-              await deposit({ data: { amount: Number(amount) } });
+              await deposit({ data: { amount: Number(amount), msisdn: phoneValue } });
               await queryClient.invalidateQueries();
               showPillToast("Approve the payment prompt on your phone");
             } catch (error) {
