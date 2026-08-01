@@ -42,7 +42,7 @@ export const Route = createFileRoute('/api/public/zengapay-webhook')({
         const reference = data.transactionExternalReference;
         if (!reference) return new Response('Missing reference', { status: 202 });
 
-        const providerRef = data.transactionSystemId ?? null;
+        const providerRef = data.transactionSystemId ?? undefined;
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
 
         if (event === 'collection.success') {
