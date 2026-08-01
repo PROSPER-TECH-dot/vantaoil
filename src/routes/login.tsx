@@ -7,6 +7,7 @@ import { PillInput, PasswordInput, PillButton } from "@/components/vanta/auth-ui
 import { useLoading } from "@/components/vanta/loading";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { phoneToEmail } from "@/lib/phone";
+import { setupAccount } from "@/lib/vanta";
 import authImage from "@/assets/oil-login.jpg";
 
 export const Route = createFileRoute("/login")({
@@ -70,6 +71,7 @@ function LoginPage() {
       return;
     }
 
+    await setupAccount(`+256${parsed.data.phone.replace(/\D/g, "").replace(/^0+/, "")}`);
     showCenterToast("Login successful");
     startLoading(1500);
     setTimeout(() => navigate({ to: "/home" }), 1500);

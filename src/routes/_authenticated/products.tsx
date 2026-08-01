@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
+import { ugx, useProfile } from "@/lib/vanta";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import vip1 from "@/assets/product-vip1.jpg";
 import vip2 from "@/assets/product-vip2.jpg";
@@ -131,11 +134,40 @@ const products: Product[] = [
   },
 ];
 
-const ugx = (value: number) => `UGX ${value.toLocaleString("en-US")}`;
-
 function ProductsPage() {
   const [pending, setPending] = useState<Product | null>(null);
-  const { showPillToast } = useCenterToast();
+  const queryClient = useQueryClient();
+  const { showPillToast, showCenterToast } = useCenterToast();
+  const { data: profile } = useProfile();
+
+  const { data: owned } = useQuery({
+    queryKey: ["purchases"],
+    queryFn: async () => {
+      const { data } = await supabase.from("purchases").select("id, total");
+      return data ?? [];
+    },
+  });
+
+  const revenue = (owned ?? []).reduce((sum, row) => sum + Number(row.total ?? 0), 0);
+
+  async function confirmPurchase(product: Product) {
+    setPending(null);
+    const { error } = await supabase.rpc("purchase_product", {
+      p_product_id: product.id,
+      p_name: product.name,
+      p_image: product.image,
+      p_price: product.price,
+      p_daily: product.daily,
+      p_term: product.term,
+      p_total: product.total,
+    });
+    if (error) {
+      showPillToast(error.message);
+      return;
+    }
+    await queryClient.invalidateQueries();
+    showCenterToast("Purchase successful");
+  }
 
   return (
     <div className="slide-in min-h-dvh bg-surface pb-6">
@@ -153,14 +185,17 @@ function ProductsPage() {
         >
           <div className="flex items-end justify-between text-charcoal-foreground">
             <Link to="/my-products" className="press block text-left">
-              <p className="text-3xl font-bold">0</p>
+              <p className="text-3xl font-bold">{owned?.length ?? 0}</p>
               <p className="mt-1 text-[15px] opacity-90">My Product &gt;</p>
             </Link>
             <Link to="/my-products" className="press block text-right">
-              <p className="text-3xl font-bold">UGX 0</p>
+              <p className="text-3xl font-bold">{ugx(revenue)}</p>
               <p className="mt-1 text-[15px] opacity-90">Total revenue &gt;</p>
             </Link>
           </div>
+          <p className="mt-4 text-[14px] text-charcoal-foreground/80">
+            Purchase balance: {ugx(profile?.recharge_balance ?? 0)}
+          </p>
         </div>
       </section>
 
@@ -199,10 +234,7 @@ function ProductsPage() {
         <PurchaseDialog
           product={pending}
           onClose={() => setPending(null)}
-          onConfirm={() => {
-            setPending(null);
-            showPillToast("Insufficient balance to complete purchase");
-          }}
+          onConfirm={() => confirmPurchase(pending)}
         />
       ) : null}
     </div>

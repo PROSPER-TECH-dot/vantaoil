@@ -25,10 +25,13 @@ import { Route as AuthenticatedMyProductsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedProductsRouteImport } from './routes/_authenticated/products'
 import { Route as AuthenticatedRechargeRouteImport } from './routes/_authenticated/recharge'
 import { Route as AuthenticatedRechargeProblemRouteImport } from './routes/_authenticated/recharge-problem'
+import { Route as AuthenticatedRechargeRecordsRouteImport } from './routes/_authenticated/recharge-records'
 import { Route as AuthenticatedRecordsRouteImport } from './routes/_authenticated/records'
 import { Route as AuthenticatedRegulationRouteImport } from './routes/_authenticated/regulation'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedTeamRecordsRouteImport } from './routes/_authenticated/team-records'
+import { Route as AuthenticatedWithdrawRouteImport } from './routes/_authenticated/withdraw'
+import { Route as AuthenticatedWithdrawalRecordsRouteImport } from './routes/_authenticated/withdrawal-records'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -112,6 +115,12 @@ const AuthenticatedRechargeProblemRoute =
     path: '/recharge-problem',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedRechargeRecordsRoute =
+  AuthenticatedRechargeRecordsRouteImport.update({
+    id: '/recharge-records',
+    path: '/recharge-records',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedRecordsRoute = AuthenticatedRecordsRouteImport.update({
   id: '/records',
   path: '/records',
@@ -133,6 +142,17 @@ const AuthenticatedTeamRecordsRoute =
     path: '/team-records',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedWithdrawRoute = AuthenticatedWithdrawRouteImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWithdrawalRecordsRoute =
+  AuthenticatedWithdrawalRecordsRouteImport.update({
+    id: '/withdrawal-records',
+    path: '/withdrawal-records',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -150,10 +170,13 @@ export interface FileRoutesByFullPath {
   '/products': typeof AuthenticatedProductsRoute
   '/recharge': typeof AuthenticatedRechargeRoute
   '/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/recharge-records': typeof AuthenticatedRechargeRecordsRoute
   '/records': typeof AuthenticatedRecordsRoute
   '/regulation': typeof AuthenticatedRegulationRoute
   '/team': typeof AuthenticatedTeamRoute
   '/team-records': typeof AuthenticatedTeamRecordsRoute
+  '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/withdrawal-records': typeof AuthenticatedWithdrawalRecordsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -171,10 +194,13 @@ export interface FileRoutesByTo {
   '/products': typeof AuthenticatedProductsRoute
   '/recharge': typeof AuthenticatedRechargeRoute
   '/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/recharge-records': typeof AuthenticatedRechargeRecordsRoute
   '/records': typeof AuthenticatedRecordsRoute
   '/regulation': typeof AuthenticatedRegulationRoute
   '/team': typeof AuthenticatedTeamRoute
   '/team-records': typeof AuthenticatedTeamRecordsRoute
+  '/withdraw': typeof AuthenticatedWithdrawRoute
+  '/withdrawal-records': typeof AuthenticatedWithdrawalRecordsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -194,10 +220,13 @@ export interface FileRoutesById {
   '/_authenticated/products': typeof AuthenticatedProductsRoute
   '/_authenticated/recharge': typeof AuthenticatedRechargeRoute
   '/_authenticated/recharge-problem': typeof AuthenticatedRechargeProblemRoute
+  '/_authenticated/recharge-records': typeof AuthenticatedRechargeRecordsRoute
   '/_authenticated/records': typeof AuthenticatedRecordsRoute
   '/_authenticated/regulation': typeof AuthenticatedRegulationRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/team-records': typeof AuthenticatedTeamRecordsRoute
+  '/_authenticated/withdraw': typeof AuthenticatedWithdrawRoute
+  '/_authenticated/withdrawal-records': typeof AuthenticatedWithdrawalRecordsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -217,10 +246,13 @@ export interface FileRouteTypes {
     | '/products'
     | '/recharge'
     | '/recharge-problem'
+    | '/recharge-records'
     | '/records'
     | '/regulation'
     | '/team'
     | '/team-records'
+    | '/withdraw'
+    | '/withdrawal-records'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -238,10 +270,13 @@ export interface FileRouteTypes {
     | '/products'
     | '/recharge'
     | '/recharge-problem'
+    | '/recharge-records'
     | '/records'
     | '/regulation'
     | '/team'
     | '/team-records'
+    | '/withdraw'
+    | '/withdrawal-records'
   id:
     | '__root__'
     | '/'
@@ -260,10 +295,13 @@ export interface FileRouteTypes {
     | '/_authenticated/products'
     | '/_authenticated/recharge'
     | '/_authenticated/recharge-problem'
+    | '/_authenticated/recharge-records'
     | '/_authenticated/records'
     | '/_authenticated/regulation'
     | '/_authenticated/team'
     | '/_authenticated/team-records'
+    | '/_authenticated/withdraw'
+    | '/_authenticated/withdrawal-records'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -387,6 +425,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRechargeProblemRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/recharge-records': {
+      id: '/_authenticated/recharge-records'
+      path: '/recharge-records'
+      fullPath: '/recharge-records'
+      preLoaderRoute: typeof AuthenticatedRechargeRecordsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/records': {
       id: '/_authenticated/records'
       path: '/records'
@@ -415,6 +460,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeamRecordsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/withdraw': {
+      id: '/_authenticated/withdraw'
+      path: '/withdraw'
+      fullPath: '/withdraw'
+      preLoaderRoute: typeof AuthenticatedWithdrawRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/withdrawal-records': {
+      id: '/_authenticated/withdrawal-records'
+      path: '/withdrawal-records'
+      fullPath: '/withdrawal-records'
+      preLoaderRoute: typeof AuthenticatedWithdrawalRecordsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -431,10 +490,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedProductsRoute: typeof AuthenticatedProductsRoute
   AuthenticatedRechargeRoute: typeof AuthenticatedRechargeRoute
   AuthenticatedRechargeProblemRoute: typeof AuthenticatedRechargeProblemRoute
+  AuthenticatedRechargeRecordsRoute: typeof AuthenticatedRechargeRecordsRoute
   AuthenticatedRecordsRoute: typeof AuthenticatedRecordsRoute
   AuthenticatedRegulationRoute: typeof AuthenticatedRegulationRoute
   AuthenticatedTeamRoute: typeof AuthenticatedTeamRoute
   AuthenticatedTeamRecordsRoute: typeof AuthenticatedTeamRecordsRoute
+  AuthenticatedWithdrawRoute: typeof AuthenticatedWithdrawRoute
+  AuthenticatedWithdrawalRecordsRoute: typeof AuthenticatedWithdrawalRecordsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -450,10 +512,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedProductsRoute: AuthenticatedProductsRoute,
   AuthenticatedRechargeRoute: AuthenticatedRechargeRoute,
   AuthenticatedRechargeProblemRoute: AuthenticatedRechargeProblemRoute,
+  AuthenticatedRechargeRecordsRoute: AuthenticatedRechargeRecordsRoute,
   AuthenticatedRecordsRoute: AuthenticatedRecordsRoute,
   AuthenticatedRegulationRoute: AuthenticatedRegulationRoute,
   AuthenticatedTeamRoute: AuthenticatedTeamRoute,
   AuthenticatedTeamRecordsRoute: AuthenticatedTeamRecordsRoute,
+  AuthenticatedWithdrawRoute: AuthenticatedWithdrawRoute,
+  AuthenticatedWithdrawalRecordsRoute: AuthenticatedWithdrawalRecordsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

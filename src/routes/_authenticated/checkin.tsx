@@ -1,6 +1,8 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
+import { supabase } from "@/integrations/supabase/client";
+import { CHECKIN_BONUS, useProfile } from "@/lib/vanta";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import checkinImage from "@/assets/oil-checkin.jpg";
 
@@ -21,10 +23,28 @@ export const Route = createFileRoute("/_authenticated/checkin")({
 
 function CheckinPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { showCenterToast, showPillToast } = useCenterToast();
-  const [checkedIn, setCheckedIn] = useState(false);
-  const [days, setDays] = useState(0);
-  const bonus = days * 300;
+  const { data: profile } = useProfile();
+  const days = profile?.checkin_days ?? 0;
+  const bonus = days * CHECKIN_BONUS;
+  const today = new Date().toISOString().slice(0, 10);
+  const checkedIn = profile?.last_checkin_date === today;
+
+  async function handleCheckin() {
+    if (checkedIn) {
+      showPillToast("You have already checked in today");
+      return;
+    }
+    const { error } = await supabase.rpc("daily_checkin");
+    if (error) {
+      showPillToast(error.message);
+      return;
+    }
+    await queryClient.invalidateQueries();
+    showCenterToast("Check-in successful");
+  }
+
 
   return (
     <div className="slide-in min-h-dvh bg-background">
@@ -99,18 +119,10 @@ function CheckinPage() {
       <section className="mt-8 px-5">
         <button
           type="button"
-          onClick={() => {
-            if (checkedIn) {
-              showPillToast("You have already checked in");
-              return;
-            }
-            setCheckedIn(true);
-            setDays((d) => d + 1);
-            showCenterToast("Check-in successful");
-          }}
+          onClick={handleCheckin}
           className="press w-full rounded-full bg-primary py-4 text-[22px] font-bold text-primary-foreground"
         >
-          Check in
+          {checkedIn ? "Checked in" : "Check in"}
         </button>
 
         <ol className="mt-5 space-y-1.5 text-[15px] text-muted-foreground">
