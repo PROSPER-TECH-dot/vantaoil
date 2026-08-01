@@ -222,6 +222,10 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
       ) : (
         <div className="space-y-5">
           <section>
+            <div className="mb-2 flex items-center gap-3">
+              <Avatar url={p?.avatar_url} label={p?.phone ?? null} size={56} />
+              <p className="text-[15px] font-semibold">{p?.phone || p?.email || "—"}</p>
+            </div>
             <KV label="Name" value={p?.full_name || "—"} />
             <KV label="Email" value={p?.email || "—"} />
             <KV label="Invite code" value={p?.invite_code ?? "------"} />
