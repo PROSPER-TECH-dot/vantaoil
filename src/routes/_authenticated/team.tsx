@@ -145,7 +145,7 @@ function TeamPage() {
       </section>
 
       <section className="mt-4 space-y-3 px-4">
-        {LEVELS.map((row) => (
+        {LEVELS.map((row, index) => (
           <div
             key={row.level}
             className="flex items-center gap-4 rounded-2xl px-4 py-4"
@@ -160,11 +160,13 @@ function TeamPage() {
                 <p className="text-[15px]">Commission</p>
               </div>
               <div>
-                <p className="text-[22px] font-semibold">0</p>
+                <p className="text-[22px] font-semibold">{levels?.[index]?.length ?? 0}</p>
                 <p className="text-[15px]">Users</p>
               </div>
               <div>
-                <p className="text-[22px] font-semibold">0</p>
+                <p className="text-[22px] font-semibold">
+                  {rewardFor(index + 1).toLocaleString("en-US")}
+                </p>
                 <p className="text-[15px]">Rewards</p>
               </div>
             </div>
