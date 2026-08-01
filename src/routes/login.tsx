@@ -71,6 +71,7 @@ function LoginPage() {
       return;
     }
 
+    await setupAccount(`+256${parsed.data.phone.replace(/\D/g, "").replace(/^0+/, "")}`);
     showCenterToast("Login successful");
     startLoading(1500);
     setTimeout(() => navigate({ to: "/home" }), 1500);
