@@ -79,12 +79,11 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
       {children}
       <div
         aria-hidden={!isLoading}
-        className={`pointer-events-none fixed inset-0 z-[120] flex items-center justify-center backdrop-blur-[2px] transition-opacity duration-500 ${
+        className={`pointer-events-none fixed inset-0 z-[120] flex items-center justify-center transition-opacity duration-300 ${
           isLoading ? "opacity-100" : "opacity-0"
         }`}
-        style={{ backgroundColor: "color-mix(in oklab, var(--background) 78%, transparent)" }}
       >
-        <RingLoader size={48} />
+        <RingLoader size={44} />
       </div>
     </LoadingContext.Provider>
   );

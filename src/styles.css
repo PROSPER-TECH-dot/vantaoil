@@ -201,10 +201,10 @@
 
 .vanta-spinner-bar {
   position: absolute;
-  left: 46%;
+  left: 47.5%;
   top: 50%;
-  width: 8%;
-  height: 27%;
+  width: 5%;
+  height: 26%;
   border-radius: 9999px;
   background: currentColor;
   transform-origin: 50% 0;

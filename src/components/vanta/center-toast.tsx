@@ -42,23 +42,24 @@ export function CenterToastProvider({ children }: { children: ReactNode }) {
           aria-live="polite"
         >
           <div
-            className="center-toast flex min-w-[190px] flex-col items-center gap-2 rounded-xl px-7 py-5 text-night-foreground"
-            style={{ backgroundColor: "color-mix(in oklab, var(--night) 78%, transparent)" }}
+            className="center-toast flex items-center gap-2 rounded-none px-4 py-2 text-night-foreground"
+            style={{ backgroundColor: "color-mix(in oklab, var(--night) 88%, transparent)" }}
           >
             <svg
               viewBox="0 0 24 24"
-              width="42"
-              height="42"
+              width="16"
+              height="16"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.2"
+              strokeWidth="2.4"
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
+              className="shrink-0"
             >
               <path d="m4 12.5 5.2 5.5L20 6" />
             </svg>
-            <p className="text-center text-[17px] font-medium">{message}</p>
+            <p className="text-center text-[13px] font-medium">{message}</p>
           </div>
         </div>
       ) : null}
@@ -69,8 +70,8 @@ export function CenterToastProvider({ children }: { children: ReactNode }) {
           aria-live="polite"
         >
           <div
-            className="pill-toast rounded-xl px-5 py-3 text-center text-[16px] text-night-foreground"
-            style={{ backgroundColor: "color-mix(in oklab, var(--night) 72%, transparent)" }}
+            className="pill-toast rounded-none px-4 py-2 text-center text-[13px] text-night-foreground"
+            style={{ backgroundColor: "color-mix(in oklab, var(--night) 88%, transparent)" }}
           >
             {pill}
           </div>

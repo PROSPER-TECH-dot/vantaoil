@@ -8,7 +8,7 @@ import { PillInput, PasswordInput, PillButton } from "@/components/vanta/auth-ui
 import { useLoading } from "@/components/vanta/loading";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { phoneToEmail } from "@/lib/phone";
-import authImage from "@/assets/oil-auth.jpg";
+import authImage from "@/assets/oil-login.jpg";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -72,15 +72,15 @@ function LoginPage() {
     }
 
     showCenterToast("Login successful");
-    startLoading(1800);
-    setTimeout(() => navigate({ to: "/home" }), 1200);
+    startLoading(1500);
+    setTimeout(() => navigate({ to: "/home" }), 1500);
   }
 
   return (
     <main className="relative min-h-dvh overflow-hidden bg-night text-night-foreground">
       <img
         src={authImage}
-        alt="Oil mining pumpjack at dusk"
+        alt="Offshore oil drilling platform at dusk"
         width={1024}
         height={1024}
         className="pointer-events-none absolute inset-x-0 top-0 h-[62vh] w-full object-cover opacity-90"
