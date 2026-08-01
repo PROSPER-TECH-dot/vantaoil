@@ -14,9 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      gift_codes: {
+        Row: {
+          active: boolean
+          amount: number
+          code: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          max_amount: number
+          max_redemptions: number
+          min_amount: number
+          mode: string
+          redeemed_count: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          amount?: number
+          code: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          max_amount?: number
+          max_redemptions?: number
+          min_amount?: number
+          mode?: string
+          redeemed_count?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          code?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          max_amount?: number
+          max_redemptions?: number
+          min_amount?: number
+          mode?: string
+          redeemed_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gift_redemptions: {
+        Row: {
+          amount: number
+          created_at: string
+          gift_code_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          gift_code_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          gift_code_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_redemptions_gift_code_id_fkey"
+            columns: ["gift_code_id"]
+            isOneToOne: false
+            referencedRelation: "gift_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          code: string
+          created_at: string
+          daily: number
+          id: string
+          image: string
+          name: string
+          price: number
+          sold_out: boolean
+          sort_order: number
+          term: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          daily: number
+          id?: string
+          image?: string
+          name: string
+          price: number
+          sold_out?: boolean
+          sort_order?: number
+          term: string
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          daily?: number
+          id?: string
+          image?: string
+          name?: string
+          price?: number
+          sold_out?: boolean
+          sort_order?: number
+          term?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           balance: number
+          banned: boolean
           checkin_days: number
           created_at: string
           cumulative_income: number
@@ -35,6 +176,7 @@ export type Database = {
         }
         Insert: {
           balance?: number
+          banned?: boolean
           checkin_days?: number
           created_at?: string
           cumulative_income?: number
@@ -53,6 +195,7 @@ export type Database = {
         }
         Update: {
           balance?: number
+          banned?: boolean
           checkin_days?: number
           created_at?: string
           cumulative_income?: number
@@ -110,6 +253,36 @@ export type Database = {
         }
         Relationships: []
       }
+      recharge_problems: {
+        Row: {
+          amount: number
+          certificate_url: string | null
+          created_at: string
+          id: string
+          seen: boolean
+          user_id: string
+          wallet: string
+        }
+        Insert: {
+          amount: number
+          certificate_url?: string | null
+          created_at?: string
+          id?: string
+          seen?: boolean
+          user_id: string
+          wallet: string
+        }
+        Update: {
+          amount?: number
+          certificate_url?: string | null
+          created_at?: string
+          id?: string
+          seen?: boolean
+          user_id?: string
+          wallet?: string
+        }
+        Relationships: []
+      }
       recharges: {
         Row: {
           amount: number
@@ -164,6 +337,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       withdrawals: {
         Row: {
           amount: number
@@ -199,6 +393,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_balance: {
+        Args: {
+          p_amount: number
+          p_direction: string
+          p_note?: string
+          p_user_id: string
+          p_wallet: string
+        }
+        Returns: undefined
+      }
+      admin_overview: { Args: never; Returns: Json }
+      admin_set_banned: {
+        Args: { p_banned: boolean; p_user_id: string }
+        Returns: undefined
+      }
+      admin_set_recharge_status: {
+        Args: { p_id: string; p_status: string }
+        Returns: undefined
+      }
+      admin_set_withdrawal_status: {
+        Args: { p_id: string; p_status: string }
+        Returns: undefined
+      }
+      admin_user_detail: { Args: { p_user_id: string }; Returns: Json }
       create_recharge: {
         Args: { p_amount: number }
         Returns: {
@@ -222,6 +440,14 @@ export type Database = {
           balance: number
           checkin_days: number
         }[]
+      }
+      gen_invite_code: { Args: never; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
       }
       purchase_product: {
         Args: {
@@ -252,6 +478,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      redeem_gift_code: { Args: { p_code: string }; Returns: number }
       request_withdrawal: {
         Args: { p_amount: number }
         Returns: {
@@ -270,6 +497,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      setting_num: { Args: { _default: number; _key: string }; Returns: number }
       setup_account: {
         Args: { p_invite?: string; p_phone: string }
         Returns: {
@@ -287,7 +515,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -414,6 +642,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

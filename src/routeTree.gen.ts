@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as AuthenticatedAboutRouteImport } from './routes/_authenticated/about'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedBindBankRouteImport } from './routes/_authenticated/bind-bank'
 import { Route as AuthenticatedChangePasswordRouteImport } from './routes/_authenticated/change-password'
 import { Route as AuthenticatedCheckinRouteImport } from './routes/_authenticated/checkin'
@@ -55,6 +56,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const AuthenticatedAboutRoute = AuthenticatedAboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedBindBankRoute = AuthenticatedBindBankRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AuthenticatedAboutRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/bind-bank': typeof AuthenticatedBindBankRoute
   '/change-password': typeof AuthenticatedChangePasswordRoute
   '/checkin': typeof AuthenticatedCheckinRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/about': typeof AuthenticatedAboutRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/bind-bank': typeof AuthenticatedBindBankRoute
   '/change-password': typeof AuthenticatedChangePasswordRoute
   '/checkin': typeof AuthenticatedCheckinRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/about': typeof AuthenticatedAboutRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/bind-bank': typeof AuthenticatedBindBankRoute
   '/_authenticated/change-password': typeof AuthenticatedChangePasswordRoute
   '/_authenticated/checkin': typeof AuthenticatedCheckinRoute
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/about'
+    | '/admin'
     | '/bind-bank'
     | '/change-password'
     | '/checkin'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/about'
+    | '/admin'
     | '/bind-bank'
     | '/change-password'
     | '/checkin'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/_authenticated/about'
+    | '/_authenticated/admin'
     | '/_authenticated/bind-bank'
     | '/_authenticated/change-password'
     | '/_authenticated/checkin'
@@ -346,6 +358,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AuthenticatedAboutRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/bind-bank': {
@@ -479,6 +498,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAboutRoute: typeof AuthenticatedAboutRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBindBankRoute: typeof AuthenticatedBindBankRoute
   AuthenticatedChangePasswordRoute: typeof AuthenticatedChangePasswordRoute
   AuthenticatedCheckinRoute: typeof AuthenticatedCheckinRoute
@@ -501,6 +521,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAboutRoute: AuthenticatedAboutRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBindBankRoute: AuthenticatedBindBankRoute,
   AuthenticatedChangePasswordRoute: AuthenticatedChangePasswordRoute,
   AuthenticatedCheckinRoute: AuthenticatedCheckinRoute,
@@ -533,13 +554,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
