@@ -21,8 +21,10 @@ type Row = {
   created_at: string;
 };
 
+type Referral = { id: string; phone: string | null; avatar_url: string | null; created_at: string; recharge: number };
+
 type Detail = {
-  profile: Row & { checkin_days: number; referred_by: string | null };
+  profile: Row & { checkin_days: number; referred_by: string | null; avatar_url: string | null };
   referrer: string | null;
   purchases: {
     id: string; name: string; price: number; daily: number; term: string; total: number; created_at: string;
@@ -30,7 +32,9 @@ type Detail = {
   transactions: { id: string; kind: string; title: string; amount: number; created_at: string }[];
   recharges: { id: string; order_no: string; amount: number; status: string; created_at: string }[];
   withdrawals: { id: string; order_no: string; amount: number; received: number; status: string; created_at: string }[];
-  referrals: { id: string; phone: string | null; created_at: string; recharge: number }[];
+  referrals: Referral[];
+  referrals_l2: Referral[];
+  referrals_l3: Referral[];
   team_recharge: number;
   team_commission: number;
   is_admin: boolean;
