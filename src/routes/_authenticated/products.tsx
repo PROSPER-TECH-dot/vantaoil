@@ -209,7 +209,7 @@ function PurchaseDialogBody({
       >
         <div className="flex items-center gap-4">
           <img
-            src={product.image}
+            src={productImage(product.image)}
             alt={product.name}
             width={768}
             height={576}
