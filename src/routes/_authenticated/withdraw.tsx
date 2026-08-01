@@ -138,8 +138,8 @@ function WithdrawPage() {
       </div>
 
       <div className="mt-6 space-y-2 px-5 text-[15.5px] leading-[1.55] text-muted-foreground">
-        <p>1. The minimum withdrawal amount is UGX 5000.</p>
-        <p>2. The withdrawal fee is 20% of the withdrawal amount.</p>
+        <p>1. The minimum withdrawal amount is UGX {settings.min_withdrawal.toLocaleString("en-US")}.</p>
+        <p>2. The withdrawal fee is {settings.withdrawal_fee_percent}% of the withdrawal amount.</p>
         <p>3. There is no limit on the withdrawal time, and you can withdraw multiple times at any time.</p>
         <p>4. Withdrawals are generally credited within 4 hours, and within 24 hours at the latest.</p>
         <p>5. You must have at least one purchased product to enable the withdrawal function.</p>
