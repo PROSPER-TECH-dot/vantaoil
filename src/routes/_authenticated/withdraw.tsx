@@ -11,6 +11,10 @@ import { useBankAccounts } from "./bind-bank";
 import withdrawImage from "@/assets/pumpjack-free.png";
 
 export const Route = createFileRoute("/_authenticated/withdraw")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    card: typeof search['card'] === "string" ? (search['card'] as string) : undefined,
+  }),
+
   head: () => ({
     meta: [
       { title: "Withdraw — Vanta Oil" },
@@ -31,9 +35,9 @@ function WithdrawPage() {
   const withdraw = useServerFn(startWithdrawal);
   const [amount, setAmount] = useState("");
   const { data: cards } = useBankAccounts();
-  const [cardId, setCardId] = useState<string | null>(null);
-  const [picking, setPicking] = useState(false);
+  const { card: cardId } = Route.useSearch();
   const card = (cards ?? []).find((c) => c.id === cardId) ?? null;
+
 
   async function handleConfirm() {
     const value = Number(amount);
@@ -124,13 +128,8 @@ function WithdrawPage() {
       <section className="px-4">
         <button
           type="button"
-          onClick={() => {
-            if (!cards || cards.length === 0) {
-              navigate({ to: "/bind-bank" });
-              return;
-            }
-            setPicking(true);
-          }}
+          onClick={() => navigate({ to: "/bind-bank", search: { select: true } })}
+
           className="press flex w-full items-center gap-4 rounded-2xl bg-background px-5 py-5 text-left"
         >
           <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
@@ -166,37 +165,8 @@ function WithdrawPage() {
         </button>
       </div>
 
-      {picking ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-foreground/40" onClick={() => setPicking(false)}>
-          <div className="w-full rounded-t-3xl bg-background p-4" onClick={(e) => e.stopPropagation()}>
-            <p className="px-1 pb-2 text-[16px] font-semibold">Select bank card</p>
-            {(cards ?? []).map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setCardId(c.id);
-                  setPicking(false);
-                }}
-                className="press flex w-full items-center justify-between gap-3 border-b border-border py-4 text-left last:border-b-0"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-[15.5px] font-semibold">{c.bank} · {c.account}</span>
-                  <span className="block truncate text-[13.5px] text-muted-foreground">{c.holder}</span>
-                </span>
-                {cardId === c.id ? <span className="text-primary">✓</span> : null}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/bind-bank" })}
-              className="press mt-3 w-full rounded-full border border-border py-3 text-[15px] font-semibold"
-            >
-              Add new account
-            </button>
-          </div>
-        </div>
-      ) : null}
+
+
 
       <div className="mt-6 space-y-2 px-5 text-[15.5px] leading-[1.55] text-muted-foreground">
         <p>1. The minimum withdrawal amount is UGX {settings.min_withdrawal.toLocaleString("en-US")}.</p>
