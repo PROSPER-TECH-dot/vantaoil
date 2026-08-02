@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 import { ConfirmButton, LineInput, StarLabel, SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { ugx, useSettings } from "@/lib/vanta";
 import giftHero from "@/assets/gift-hero.jpg";
 
 export const Route = createFileRoute("/_authenticated/gift-code")({
@@ -18,13 +21,19 @@ export const Route = createFileRoute("/_authenticated/gift-code")({
 });
 
 function GiftCodePage() {
-  const { showPillToast } = useCenterToast();
+  const { showPillToast, showCenterToast } = useCenterToast();
+  const queryClient = useQueryClient();
+  const settings = useSettings();
   const [code, setCode] = useState("");
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!code.trim()) return showPillToast("Please enter gift code");
-    showPillToast("Invalid or expired gift code");
+    const { data, error } = await supabase.rpc("redeem_gift_code", { p_code: code.trim().toUpperCase() });
+    if (error) return showPillToast(error.message);
+    setCode("");
+    await queryClient.invalidateQueries();
+    showCenterToast(`Received ${ugx(Number(data ?? 0))}`);
   }
 
   return (
