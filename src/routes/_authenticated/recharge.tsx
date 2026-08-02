@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
-import { startDeposit } from "@/lib/payments.functions";
+import { checkDeposit, startDeposit } from "@/lib/payments.functions";
 import { useProfile, useSettings } from "@/lib/vanta";
 import banner from "@/assets/recharge-banner.jpg";
 
