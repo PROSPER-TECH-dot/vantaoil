@@ -91,10 +91,11 @@ function HomePage() {
     { value: amount(profile?.cumulative_income ?? 0), label: "Cumulative" },
     { value: amount(profile?.withdrawn ?? 0), label: "Withdrawn" },
   ];
-      <NotifyBanner />
 
   return (
     <div className="slide-in bg-background">
+      <NotifyBanner />
+
 
       <section className="relative bg-charcoal">
         <img
