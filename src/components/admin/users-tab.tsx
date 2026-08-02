@@ -28,6 +28,7 @@ type Detail = {
   referrer: string | null;
   purchases: {
     id: string; name: string; price: number; daily: number; term: string; total: number; created_at: string;
+    term_days: number; days_paid: number; frozen: boolean; next_payout_at: string | null;
   }[];
   transactions: { id: string; kind: string; title: string; amount: number; created_at: string }[];
   recharges: { id: string; order_no: string; amount: number; status: string; created_at: string }[];
@@ -263,6 +264,30 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
     onError: (error: Error) => showPillToast(error.message),
   });
 
+  const setFrozen = useMutation({
+    mutationFn: async (args: { id: string; frozen: boolean }) => {
+      const { error } = await supabase.rpc("admin_set_purchase_frozen", { p_id: args.id, p_frozen: args.frozen });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await refresh();
+      showCenterToast("Product updated");
+    },
+    onError: (error: Error) => showPillToast(error.message),
+  });
+
+  const removePurchase = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.rpc("admin_delete_purchase", { p_id: id });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await refresh();
+      showCenterToast("Product deleted");
+    },
+    onError: (error: Error) => showPillToast(error.message),
+  });
+
   const p = data?.profile;
 
   return (
@@ -350,15 +375,14 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
               <Empty />
             ) : (
               data.purchases.map((pu) => {
-                const days = termDays(pu.term);
-                const elapsed = Math.max(
-                  0,
-                  Math.floor((Date.now() - new Date(pu.created_at).getTime()) / 86_400_000),
-                );
-                const run = Math.min(elapsed, days);
+                const days = pu.term_days || termDays(pu.term);
+                const paid = pu.days_paid ?? 0;
                 return (
                   <AdminCard key={pu.id} className="mt-2 bg-surface">
-                    <p className="text-[15px] font-semibold">{pu.name}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-[15px] font-semibold">{pu.name}</p>
+                      {pu.frozen ? <Pill tone="bad">Frozen</Pill> : <Pill tone="good">Running</Pill>}
+                    </div>
                     <p className="mt-1 text-[13px] text-muted-foreground">
                       Bought {formatStamp(pu.created_at)}
                     </p>
@@ -366,9 +390,17 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
                       <span className="text-muted-foreground">Price</span>
                       <span className="text-right font-semibold">{ugx(pu.price)}</span>
                       <span className="text-muted-foreground">Earned so far</span>
-                      <span className="text-right font-semibold">{ugx(run * pu.daily)}</span>
+                      <span className="text-right font-semibold">{ugx(paid * pu.daily)}</span>
                       <span className="text-muted-foreground">Days remaining</span>
-                      <span className="text-right font-semibold">{Math.max(days - run, 0)} / {days}</span>
+                      <span className="text-right font-semibold">{Math.max(days - paid, 0)} / {days}</span>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <GhostButton onClick={() => setFrozen.mutate({ id: pu.id, frozen: !pu.frozen })}>
+                        {pu.frozen ? "Unfreeze" : "Freeze"}
+                      </GhostButton>
+                      <GhostButton className="text-destructive" onClick={() => removePurchase.mutate(pu.id)}>
+                        Delete
+                      </GhostButton>
                     </div>
                   </AdminCard>
                 );
