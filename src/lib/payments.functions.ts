@@ -45,7 +45,7 @@ export const startDeposit = createServerFn({ method: 'POST' })
     return { orderNo: order.order_no };
   });
 
-/** Requests a withdrawal and immediately attempts the mobile money payout. */
+/** Requests a withdrawal. The payout is only sent after an administrator approves it. */
 export const startWithdrawal = createServerFn({ method: 'POST' })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { amount: number; msisdn?: string }) => {
@@ -54,7 +54,7 @@ export const startWithdrawal = createServerFn({ method: 'POST' })
     return { amount, msisdn: typeof input.msisdn === 'string' ? input.msisdn : '' };
   })
   .handler(async ({ data, context }) => {
-    const { toMsisdn, createTransfer } = await import('./zengapay.server');
+    const { toMsisdn } = await import('./zengapay.server');
 
     const { data: profile } = await context.supabase
       .from('profiles')
@@ -69,10 +69,45 @@ export const startWithdrawal = createServerFn({ method: 'POST' })
       p_msisdn: msisdn,
     });
     if (error) throw new Error(error.message);
-    const row = withdrawal as unknown as { order_no: string; received: number };
+    const row = withdrawal as unknown as { order_no: string };
 
-    // Payout is attempted right away; if the provider rejects it the request simply
-    // stays "Processing" for an administrator to review.
+    return { orderNo: row.order_no };
+  });
+
+/** Admin approves a withdrawal: sends the mobile money payout, then marks it successful. */
+export const approveWithdrawal = createServerFn({ method: 'POST' })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    if (!input?.id) throw new Error('Missing withdrawal');
+    return { id: String(input.id) };
+  })
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc('has_role', {
+      _user_id: context.userId,
+      _role: 'admin',
+    });
+    if (!isAdmin) throw new Error('Forbidden');
+
+    const { createTransfer, toMsisdn, providerMessage } = await import('./zengapay.server');
+
+    const { data: row, error } = await context.supabase
+      .from('withdrawals')
+      .select('id, order_no, amount, received, status, msisdn, user_id')
+      .eq('id', data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error('Withdrawal not found');
+    if (row.status === 'Success') return { ok: true, alreadyPaid: true };
+
+    const { data: profile } = await context.supabase
+      .from('profiles')
+      .select('phone')
+      .eq('id', row.user_id)
+      .maybeSingle();
+
+    const msisdn = toMsisdn(row.msisdn || profile?.phone);
+    if (msisdn.length < 12) throw new Error('This member has no valid mobile money number');
+
     const result = await createTransfer({
       msisdn,
       amount: row.received,
@@ -80,5 +115,37 @@ export const startWithdrawal = createServerFn({ method: 'POST' })
       narration: `Vanta Oil payout ${row.order_no}`,
     });
 
-    return { orderNo: row.order_no, dispatched: result.ok };
+    if (!result.ok) {
+      throw new Error(providerMessage(result.body, 'Mobile money payout failed. Please try again.'));
+    }
+
+    const { error: statusError } = await context.supabase.rpc('admin_set_withdrawal_status', {
+      p_id: row.id,
+      p_status: 'Success',
+    });
+    if (statusError) throw new Error(statusError.message);
+
+    return { ok: true, alreadyPaid: false };
+  });
+
+/** Admin declines a withdrawal: the full amount, including the fee, is refunded to the member. */
+export const rejectWithdrawal = createServerFn({ method: 'POST' })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => {
+    if (!input?.id) throw new Error('Missing withdrawal');
+    return { id: String(input.id) };
+  })
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc('has_role', {
+      _user_id: context.userId,
+      _role: 'admin',
+    });
+    if (!isAdmin) throw new Error('Forbidden');
+
+    const { error } = await context.supabase.rpc('admin_set_withdrawal_status', {
+      p_id: data.id,
+      p_status: 'Rejected',
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });

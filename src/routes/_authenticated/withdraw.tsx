@@ -31,7 +31,9 @@ function WithdrawPage() {
   const withdraw = useServerFn(startWithdrawal);
   const [amount, setAmount] = useState("");
   const { data: cards } = useBankAccounts();
-  const card = cards?.[0] ?? null;
+  const [cardId, setCardId] = useState<string | null>(null);
+  const [picking, setPicking] = useState(false);
+  const card = (cards ?? []).find((c) => c.id === cardId) ?? null;
 
   async function handleConfirm() {
     const value = Number(amount);
@@ -48,7 +50,7 @@ function WithdrawPage() {
       return;
     }
     if (!card) {
-      showPillToast("Please bind a bank account first");
+      showPillToast(cards && cards.length > 0 ? "Please select a bank card" : "Please bind a bank account first");
       return;
     }
     await showProcessingToast("Processing withdrawal...", 2500);
@@ -122,7 +124,13 @@ function WithdrawPage() {
       <section className="px-4">
         <button
           type="button"
-          onClick={() => navigate({ to: "/bind-bank" })}
+          onClick={() => {
+            if (!cards || cards.length === 0) {
+              navigate({ to: "/bind-bank" });
+              return;
+            }
+            setPicking(true);
+          }}
           className="press flex w-full items-center gap-4 rounded-2xl bg-background px-5 py-5 text-left"
         >
           <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
@@ -137,7 +145,9 @@ function WithdrawPage() {
               <span className="block truncate text-[14px] text-muted-foreground">{card.holder}</span>
             </span>
           ) : (
-            <span className="flex-1 truncate text-[17px] tracking-widest text-muted-foreground">_____-__________</span>
+            <span className="flex-1 truncate text-[17px] tracking-widest text-muted-foreground">
+              {cards && cards.length > 0 ? "Select bank card" : "_____-__________"}
+            </span>
           )}
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="m9 5 7 7-7 7" />
@@ -155,6 +165,38 @@ function WithdrawPage() {
           Confirm
         </button>
       </div>
+
+      {picking ? (
+        <div className="fixed inset-0 z-50 flex items-end bg-foreground/40" onClick={() => setPicking(false)}>
+          <div className="w-full rounded-t-3xl bg-background p-4" onClick={(e) => e.stopPropagation()}>
+            <p className="px-1 pb-2 text-[16px] font-semibold">Select bank card</p>
+            {(cards ?? []).map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => {
+                  setCardId(c.id);
+                  setPicking(false);
+                }}
+                className="press flex w-full items-center justify-between gap-3 border-b border-border py-4 text-left last:border-b-0"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-[15.5px] font-semibold">{c.bank} · {c.account}</span>
+                  <span className="block truncate text-[13.5px] text-muted-foreground">{c.holder}</span>
+                </span>
+                {cardId === c.id ? <span className="text-primary">✓</span> : null}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/bind-bank" })}
+              className="press mt-3 w-full rounded-full border border-border py-3 text-[15px] font-semibold"
+            >
+              Add new account
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-6 space-y-2 px-5 text-[15.5px] leading-[1.55] text-muted-foreground">
         <p>1. The minimum withdrawal amount is UGX {settings.min_withdrawal.toLocaleString("en-US")}.</p>

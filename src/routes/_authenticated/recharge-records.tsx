@@ -23,7 +23,7 @@ function RechargeRecordsPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("recharges")
-        .select("id, order_no, amount, status, created_at")
+        .select("id, order_no, amount, status, msisdn, created_at")
         .order("created_at", { ascending: false });
       return data ?? [];
     },
@@ -41,6 +41,9 @@ function RechargeRecordsPage() {
             <div key={row.id} className="flex items-start justify-between gap-4 border-b border-border py-5">
               <div className="min-w-0">
                 <p className="truncate text-[16px]">{row.order_no}</p>
+                {row.msisdn ? (
+                  <p className="truncate text-[13px] text-muted-foreground">{row.msisdn}</p>
+                ) : null}
                 <p className="mt-2 text-[14px] text-muted-foreground">{formatStamp(row.created_at)}</p>
               </div>
               <div className="shrink-0 text-right">

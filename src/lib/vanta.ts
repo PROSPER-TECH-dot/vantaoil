@@ -52,7 +52,7 @@ export type Settings = {
 };
 
 export const SETTING_DEFAULTS: Settings = {
-  min_recharge: 20000,
+  min_recharge: 25000,
   min_withdrawal: 5000,
   withdrawal_fee_percent: 20,
   welcome_bonus: 4000,

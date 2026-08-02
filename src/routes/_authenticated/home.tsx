@@ -74,7 +74,7 @@ const actions = [
 const ticker = [
   "**49097352 recharged 38000 UGX",
   "**61663097 recharged 100000 UGX",
-  "**25536469 recharged 15000 UGX",
+  "**25536469 recharged 25000 UGX",
   "**54012288 recharged 62000 UGX",
 ];
 
