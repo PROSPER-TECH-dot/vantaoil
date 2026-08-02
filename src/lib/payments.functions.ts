@@ -11,7 +11,9 @@ export const startDeposit = createServerFn({ method: 'POST' })
     return { amount, msisdn: typeof input.msisdn === 'string' ? input.msisdn : '' };
   })
   .handler(async ({ data, context }) => {
-    const { toMsisdn, createCollection, providerMessage } = await import('./zengapay.server');
+    const { toMsisdn, createCollection, providerMessage, providerReference } = await import(
+      './zengapay.server'
+    );
 
     const { data: profile } = await context.supabase
       .from('profiles')
@@ -36,13 +38,61 @@ export const startDeposit = createServerFn({ method: 'POST' })
       narration: `Vanta Oil recharge ${order.order_no}`,
     });
 
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+
     if (!result.ok) {
-      const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
       await supabaseAdmin.rpc('fail_recharge_by_reference', { p_reference: order.order_no });
       throw new Error(providerMessage(result.body, 'Could not reach mobile money. Please try again.'));
     }
 
+    const providerRef = providerReference(result.body);
+    if (providerRef) {
+      await supabaseAdmin.from('recharges').update({ provider_ref: providerRef }).eq('order_no', order.order_no);
+    }
+
     return { orderNo: order.order_no };
+  });
+
+/**
+ * Polls the provider for a deposit and credits the member as soon as it succeeds.
+ * This runs alongside the webhook so crediting never depends on a single channel.
+ */
+export const checkDeposit = createServerFn({ method: 'POST' })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderNo: string }) => {
+    if (!input?.orderNo) throw new Error('Missing recharge');
+    return { orderNo: String(input.orderNo) };
+  })
+  .handler(async ({ data, context }) => {
+    const { data: row } = await context.supabase
+      .from('recharges')
+      .select('order_no, status, provider_ref')
+      .eq('order_no', data.orderNo)
+      .maybeSingle();
+    if (!row) return { status: 'pending' as const };
+    if (row.status === 'Success') return { status: 'success' as const };
+    if (row.status === 'Failed') return { status: 'failed' as const };
+
+    const { getCollection, transactionOutcome } = await import('./zengapay.server');
+    const result = await getCollection(row.provider_ref || row.order_no);
+    if (!result.ok) return { status: 'pending' as const };
+
+    const outcome = transactionOutcome(result.body);
+    if (outcome === 'pending') return { status: 'pending' as const };
+
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    if (outcome === 'success') {
+      await supabaseAdmin.rpc('credit_recharge_by_reference', {
+        p_reference: row.order_no,
+        p_provider_ref: row.provider_ref,
+      });
+      return { status: 'success' as const };
+    }
+    await supabaseAdmin.rpc('fail_recharge_by_reference', {
+      p_reference: row.order_no,
+      p_provider_ref: row.provider_ref,
+    });
+    return { status: 'failed' as const };
   });
 
 /** Requests a withdrawal. The payout is only sent after an administrator approves it. */
