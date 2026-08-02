@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useSettings } from "@/lib/vanta";
