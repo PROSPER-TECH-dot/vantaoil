@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
-import { startDeposit } from "@/lib/payments.functions";
+import { checkDeposit, startDeposit } from "@/lib/payments.functions";
 import { useProfile, useSettings } from "@/lib/vanta";
 import banner from "@/assets/recharge-banner.jpg";
 
@@ -26,10 +26,11 @@ const AMOUNTS = [20000, 30000, 60000, 120000, 300000, 500000, 1000000, 2000000];
 function RechargePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { showPillToast, showProcessingToast } = useCenterToast();
+  const { showPillToast, showProcessingToast, showCenterToast } = useCenterToast();
   const settings = useSettings();
   const { data: profile } = useProfile();
   const deposit = useServerFn(startDeposit);
+  const pollDeposit = useServerFn(checkDeposit);
   const [amount, setAmount] = useState("20000");
   const [phone, setPhone] = useState("");
   const [touchedPhone, setTouchedPhone] = useState(false);
@@ -158,9 +159,29 @@ function RechargePage() {
             }
             await showProcessingToast("Processing payment...", 2500);
             try {
-              await deposit({ data: { amount: Number(amount), msisdn: phoneValue } });
+              const { orderNo } = await deposit({ data: { amount: Number(amount), msisdn: phoneValue } });
               await queryClient.invalidateQueries();
               showPillToast("Approve the payment prompt on your phone");
+
+              // Credit as soon as the payment clears, even if the webhook is delayed.
+              for (let i = 0; i < 40; i += 1) {
+                await new Promise((resolve) => setTimeout(resolve, 5000));
+                let result: { status: string };
+                try {
+                  result = await pollDeposit({ data: { orderNo } });
+                } catch {
+                  continue;
+                }
+                if (result.status === "success") {
+                  await queryClient.invalidateQueries();
+                  showCenterToast("Recharge successful");
+                  return;
+                }
+                if (result.status === "failed") {
+                  showPillToast("The payment was not completed");
+                  return;
+                }
+              }
             } catch (error) {
               showPillToast(error instanceof Error ? error.message : "Payment could not be started");
             }
