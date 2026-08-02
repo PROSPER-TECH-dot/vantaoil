@@ -63,12 +63,15 @@ function ProductsPage() {
   const { data: owned } = useQuery({
     queryKey: ["purchases"],
     queryFn: async () => {
-      const { data } = await supabase.from("purchases").select("id, total");
+      const { data } = await supabase.from("purchases").select("id, daily, days_paid");
       return data ?? [];
     },
   });
 
-  const revenue = (owned ?? []).reduce((sum, row) => sum + Number(row.total ?? 0), 0);
+  const revenue = (owned ?? []).reduce(
+    (sum, row) => sum + Number(row.daily ?? 0) * Number(row.days_paid ?? 0),
+    0,
+  );
   const available = revenue + Number(profile?.recharge_balance ?? 0);
 
   async function confirmPurchase(product: Product) {
