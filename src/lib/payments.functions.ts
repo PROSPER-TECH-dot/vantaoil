@@ -169,11 +169,22 @@ export const approveWithdrawal = createServerFn({ method: 'POST' })
       throw new Error(providerMessage(result.body, 'Mobile money payout failed. Please try again.'));
     }
 
+    const { providerReference, transactionOutcome } = await import('./zengapay.server');
+    const providerRef = providerReference(result.body);
+    if (transactionOutcome(result.body) === 'failed') {
+      throw new Error(providerMessage(result.body, 'Mobile money declined this payout. Please try again.'));
+    }
+
     const { error: statusError } = await context.supabase.rpc('admin_set_withdrawal_status', {
       p_id: row.id,
       p_status: 'Success',
     });
     if (statusError) throw new Error(statusError.message);
+
+    if (providerRef) {
+      const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+      await supabaseAdmin.from('withdrawals').update({ provider_ref: providerRef }).eq('id', row.id);
+    }
 
     return { ok: true, alreadyPaid: false };
   });
