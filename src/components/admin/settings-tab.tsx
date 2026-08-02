@@ -11,9 +11,9 @@ const FIELDS: { key: string; label: string; hint?: string }[] = [
   { key: "withdrawal_fee_percent", label: "Withdrawal fee (%)" },
   { key: "welcome_bonus", label: "Welcome bonus (UGX)" },
   { key: "checkin_bonus", label: "Daily check-in bonus (UGX)" },
-  { key: "support_whatsapp", label: "Customer support / WhatsApp" },
-  { key: "support_telegram", label: "Telegram contact" },
-  { key: "group_link", label: "Official group link" },
+  { key: "support_whatsapp", label: "WhatsApp number 1" },
+  { key: "support_whatsapp_2", label: "WhatsApp number 2" },
+  { key: "group_link", label: "WhatsApp group link" },
 ];
 
 export function SettingsTab() {
