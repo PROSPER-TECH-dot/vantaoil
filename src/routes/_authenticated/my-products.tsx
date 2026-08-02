@@ -1,8 +1,9 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { formatStamp, ugx } from "@/lib/vanta";
+import { formatStamp, productImage, ugx } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated/my-products")({
   head: () => ({
@@ -19,20 +20,41 @@ export const Route = createFileRoute("/_authenticated/my-products")({
   component: MyProductsPage,
 });
 
+function useTick() {
+  const [, setNow] = useState(Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+}
+
+function countdown(next: string | null) {
+  if (!next) return "—";
+  const ms = new Date(next).getTime() - Date.now();
+  if (ms <= 0) return "Settling…";
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60_000);
+  const s = Math.floor((ms % 60_000) / 1000);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(h)}:${p(m)}:${p(s)}`;
+}
+
 function MyProductsPage() {
   const router = useRouter();
+  useTick();
   const { data: rows } = useQuery({
     queryKey: ["purchases"],
     queryFn: async () => {
       const { data } = await supabase
         .from("purchases")
-        .select("id, name, image, price, daily, term, total, created_at")
+        .select("id, name, image, price, daily, term, total, created_at, term_days, days_paid, next_payout_at, frozen")
         .order("created_at", { ascending: false });
       return data ?? [];
     },
   });
   const items = rows ?? [];
-  const revenue = items.reduce((sum, row) => sum + Number(row.total ?? 0), 0);
+  const revenue = items.reduce((sum, row) => sum + Number(row.daily ?? 0) * Number(row.days_paid ?? 0), 0);
+
 
 
   return (
