@@ -11,6 +11,9 @@ import { useBankAccounts } from "./bind-bank";
 import withdrawImage from "@/assets/pumpjack-free.png";
 
 export const Route = createFileRoute("/_authenticated/withdraw")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    card: typeof search.card === "string" ? search.card : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Withdraw — Vanta Oil" },
@@ -31,9 +34,9 @@ function WithdrawPage() {
   const withdraw = useServerFn(startWithdrawal);
   const [amount, setAmount] = useState("");
   const { data: cards } = useBankAccounts();
-  const [cardId, setCardId] = useState<string | null>(null);
-  const [picking, setPicking] = useState(false);
+  const { card: cardId } = Route.useSearch();
   const card = (cards ?? []).find((c) => c.id === cardId) ?? null;
+
 
   async function handleConfirm() {
     const value = Number(amount);
