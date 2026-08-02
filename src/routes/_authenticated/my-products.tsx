@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { formatStamp, productImage, ugx } from "@/lib/vanta";
+import { currentUserId, formatStamp, productImage, ugx } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated/my-products")({
   head: () => ({
@@ -45,9 +45,11 @@ function MyProductsPage() {
   const { data: rows } = useQuery({
     queryKey: ["purchases"],
     queryFn: async () => {
+      const uid = await currentUserId();
       const { data } = await supabase
         .from("purchases")
         .select("id, name, image, price, daily, term, total, created_at, term_days, days_paid, next_payout_at, frozen")
+        .eq("user_id", uid)
         .order("created_at", { ascending: false });
       return data ?? [];
     },

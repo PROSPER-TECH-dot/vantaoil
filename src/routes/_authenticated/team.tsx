@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import teamImage from "@/assets/oil-team.jpg";
 import { supabase } from "@/integrations/supabase/client";
-import { inviteLink as buildInviteLink, ugx, useProfile } from "@/lib/vanta";
+import { currentUserId, inviteLink as buildInviteLink, ugx, useProfile } from "@/lib/vanta";
 import { useCenterToast } from "@/components/vanta/center-toast";
 
 export const Route = createFileRoute("/_authenticated/team")({
@@ -47,9 +47,11 @@ function TeamPage() {
   const { data: commissions } = useQuery({
     queryKey: ["team-commissions"],
     queryFn: async () => {
+      const uid = await currentUserId();
       const { data } = await supabase
         .from("transactions")
         .select("title, amount")
+        .eq("user_id", uid)
         .eq("kind", "income")
         .like("title", "%team commission%");
       return data ?? [];

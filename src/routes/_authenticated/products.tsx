@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 
 import { supabase } from "@/integrations/supabase/client";
-import { productImage, ugx, useProfile } from "@/lib/vanta";
+import { currentUserId, productImage, ugx, useProfile } from "@/lib/vanta";
 import { useCenterToast } from "@/components/vanta/center-toast";
 
 export const Route = createFileRoute("/_authenticated/products")({
@@ -63,7 +63,8 @@ function ProductsPage() {
   const { data: owned } = useQuery({
     queryKey: ["purchases"],
     queryFn: async () => {
-      const { data } = await supabase.from("purchases").select("id, daily, days_paid");
+      const uid = await currentUserId();
+      const { data } = await supabase.from("purchases").select("id, daily, days_paid").eq("user_id", uid);
       return data ?? [];
     },
   });

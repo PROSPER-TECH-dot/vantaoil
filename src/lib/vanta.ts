@@ -156,6 +156,12 @@ export function useIsAdmin() {
   return data ?? false;
 }
 
+/** The signed-in user's id, used to scope personal records to their own account. */
+export async function currentUserId() {
+  const { data } = await supabase.auth.getUser();
+  return data.user?.id ?? "";
+}
+
 /* ------------------------------------------------------------------ */
 /* Account setup                                                       */
 /* ------------------------------------------------------------------ */
