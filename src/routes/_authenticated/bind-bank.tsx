@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ConfirmButton, LineInput, StarLabel, SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { currentUserId } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated/bind-bank")({
   validateSearch: (search: Record<string, unknown>) => ({
