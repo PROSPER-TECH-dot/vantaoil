@@ -28,6 +28,7 @@ type Detail = {
   referrer: string | null;
   purchases: {
     id: string; name: string; price: number; daily: number; term: string; total: number; created_at: string;
+    term_days: number; days_paid: number; frozen: boolean; next_payout_at: string | null;
   }[];
   transactions: { id: string; kind: string; title: string; amount: number; created_at: string }[];
   recharges: { id: string; order_no: string; amount: number; status: string; created_at: string }[];
