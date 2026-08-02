@@ -47,9 +47,13 @@ function WithdrawPage() {
       showPillToast("You must own at least one product to withdraw");
       return;
     }
+    if (!card) {
+      showPillToast("Please bind a bank account first");
+      return;
+    }
     await showProcessingToast("Processing withdrawal...", 2500);
     try {
-      await withdraw({ data: { amount: value } });
+      await withdraw({ data: { amount: value, msisdn: card.account } });
       setAmount("");
       await queryClient.invalidateQueries();
       showCenterToast("Withdrawal submitted");
