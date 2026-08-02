@@ -46,6 +46,8 @@ function BindBankPage() {
   const { data: accounts } = useBankAccounts();
   const queryClient = useQueryClient();
   const { showPillToast } = useCenterToast();
+  const { select } = Route.useSearch();
+  const navigate = useNavigate();
 
   async function remove(id: string) {
     const { error } = await supabase.from("bank_accounts").delete().eq("id", id);
@@ -73,9 +75,19 @@ function BindBankPage() {
         </button>
       </div>
 
+      {select ? (
+        <p className="px-5 pt-4 text-center text-[14px] text-muted-foreground">
+          Tap an account to use it for your withdrawal
+        </p>
+      ) : null}
+
       <section className="space-y-3 px-4 py-6">
         {(accounts ?? []).map((a) => (
-          <div key={a.id} className="rounded-2xl bg-background px-4 py-4">
+          <div
+            key={a.id}
+            onClick={select ? () => navigate({ to: "/withdraw", search: { card: a.id } }) : undefined}
+            className={`rounded-2xl bg-background px-4 py-4 ${select ? "press cursor-pointer" : ""}`}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-[16px] font-semibold">{a.bank}</p>
@@ -84,7 +96,10 @@ function BindBankPage() {
               </div>
               <button
                 type="button"
-                onClick={() => void remove(a.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  void remove(a.id);
+                }}
                 className="press shrink-0 text-[14px] text-destructive"
               >
                 Delete
@@ -93,6 +108,7 @@ function BindBankPage() {
           </div>
         ))}
       </section>
+
     </div>
   );
 }
