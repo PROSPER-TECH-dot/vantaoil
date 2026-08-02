@@ -27,8 +27,8 @@ function CustomerServicePage() {
   const { showPillToast } = useCenterToast();
 
   const channels = [
-    { label: settings.support_whatsapp || "WhatsApp Service", href: waLink(settings.support_whatsapp) },
-    { label: settings.support_whatsapp_2 || "WhatsApp Service 2", href: waLink(settings.support_whatsapp_2) },
+    { label: "WhatsApp Service 1", href: waLink(settings.support_whatsapp) },
+    { label: "WhatsApp Service 2", href: waLink(settings.support_whatsapp_2) },
     { label: "Official WhatsApp Group", href: settings.group_link?.trim() ?? "" },
   ];
 
