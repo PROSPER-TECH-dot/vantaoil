@@ -115,27 +115,44 @@ function MyProductsPage() {
         </div>
       ) : (
         <section className="space-y-3 px-4 py-4">
-          {items.map((row) => (
-            <article key={row.id} className="flex gap-3 rounded-2xl bg-background p-4">
-              <img
-                src={row.image ?? ""}
-                alt={row.name}
-                width={120}
-                height={90}
-                loading="lazy"
-                className="h-20 w-24 shrink-0 rounded-xl object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[16px] font-semibold">{row.name}</p>
-                <p className="mt-1 text-[14px] text-muted-foreground">Term: {row.term}</p>
-                <p className="mt-1 text-[14px] text-muted-foreground">
-                  Daily income: {ugx(Number(row.daily))}
-                </p>
-                <p className="mt-1 text-[13px] text-muted-foreground">{formatStamp(row.created_at)}</p>
-              </div>
-              <p className="shrink-0 text-[16px] font-bold text-primary">{ugx(Number(row.price))}</p>
-            </article>
-          ))}
+          {items.map((row) => {
+            const days = Number(row.term_days ?? 0);
+            const paid = Number(row.days_paid ?? 0);
+            return (
+              <article key={row.id} className="flex gap-3 rounded-2xl bg-background p-4">
+                <img
+                  src={productImage(row.image)}
+                  alt={row.name}
+                  width={120}
+                  height={90}
+                  loading="lazy"
+                  className="h-20 w-24 shrink-0 rounded-xl object-contain"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[16px] font-semibold">{row.name}</p>
+                  <p className="mt-1 text-[14px] text-muted-foreground">Term: {row.term}</p>
+                  <p className="mt-1 text-[14px] text-muted-foreground">
+                    Daily income: {ugx(Number(row.daily))}
+                  </p>
+                  <p className="mt-1 text-[14px] text-muted-foreground">
+                    Earned so far: <span className="font-semibold text-primary">{ugx(paid * Number(row.daily))}</span>
+                  </p>
+                  <p className="mt-1 text-[14px] text-muted-foreground">
+                    Days remaining: {Math.max(days - paid, 0)} / {days}
+                  </p>
+                  <p className="mt-1 text-[14px] text-muted-foreground">
+                    {row.frozen
+                      ? "Frozen — income paused"
+                      : days - paid <= 0
+                        ? "Completed"
+                        : `Next income in ${countdown(row.next_payout_at)}`}
+                  </p>
+                  <p className="mt-1 text-[13px] text-muted-foreground">{formatStamp(row.created_at)}</p>
+                </div>
+                <p className="shrink-0 text-[16px] font-bold text-primary">{ugx(Number(row.price))}</p>
+              </article>
+            );
+          })}
         </section>
       )}
     </div>
