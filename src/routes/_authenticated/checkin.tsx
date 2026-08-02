@@ -134,15 +134,16 @@ function CheckinPage() {
         <button
           type="button"
           onClick={handleCheckin}
-          className="press w-full rounded-full bg-primary py-4 text-[22px] font-bold text-primary-foreground"
+          disabled={checkedIn}
+          className="press w-full rounded-full bg-primary py-4 text-[22px] font-bold text-primary-foreground disabled:opacity-50"
         >
-          {checkedIn ? "Checked in" : "Check in"}
+          {checkedIn ? `Next check-in in ${countdown}` : "Check in"}
         </button>
 
         <ol className="mt-5 space-y-1.5 text-[15px] text-muted-foreground">
-          <li>1. Daily check-in reward: 300 UGX</li>
-          <li>2. Check in once a day.</li>
-          <li>3. Check in again after 24:00 each day.</li>
+          <li>1. Daily check-in reward: {settings.checkin_bonus} UGX</li>
+          <li>2. You can check in once every 24 hours.</li>
+          <li>3. The next check-in unlocks exactly 24 hours after your last one.</li>
         </ol>
       </section>
     </div>
