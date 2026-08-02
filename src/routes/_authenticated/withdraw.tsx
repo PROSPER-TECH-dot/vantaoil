@@ -128,13 +128,8 @@ function WithdrawPage() {
       <section className="px-4">
         <button
           type="button"
-          onClick={() => {
-            if (!cards || cards.length === 0) {
-              navigate({ to: "/bind-bank" });
-              return;
-            }
-            setPicking(true);
-          }}
+          onClick={() => navigate({ to: "/bind-bank", search: { select: true } })}
+
           className="press flex w-full items-center gap-4 rounded-2xl bg-background px-5 py-5 text-left"
         >
           <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
