@@ -7,6 +7,7 @@ import { ProblemsTab } from "@/components/admin/problems-tab";
 import { ProductsTab } from "@/components/admin/products-tab";
 import { SettingsTab } from "@/components/admin/settings-tab";
 import { TransactionsTab } from "@/components/admin/transactions-tab";
+import { WithdrawalsTab } from "@/components/admin/withdrawals-tab";
 import { UsersTab } from "@/components/admin/users-tab";
 import { useIsAdmin } from "@/lib/vanta";
 
@@ -28,6 +29,7 @@ const TABS = [
   { id: "users", label: "Users" },
   { id: "products", label: "Products" },
   { id: "transactions", label: "Transactions" },
+  { id: "withdrawals", label: "Withdrawals" },
   { id: "problems", label: "Recharge problem" },
   { id: "giftcode", label: "Giftcode" },
   { id: "settings", label: "Settings" },
@@ -82,6 +84,7 @@ function AdminPage() {
         {tab === "users" ? <UsersTab /> : null}
         {tab === "products" ? <ProductsTab /> : null}
         {tab === "transactions" ? <TransactionsTab /> : null}
+        {tab === "withdrawals" ? <WithdrawalsTab /> : null}
         {tab === "problems" ? <ProblemsTab /> : null}
         {tab === "giftcode" ? <GiftCodesTab /> : null}
         {tab === "settings" ? <SettingsTab /> : null}

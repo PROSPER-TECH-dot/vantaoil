@@ -13,6 +13,7 @@ type Row = {
   amount: number;
   created_at: string;
   status: string;
+  msisdn?: string | null;
 };
 
 export function TransactionsTab() {
@@ -31,12 +32,12 @@ export function TransactionsTab() {
           .limit(500),
         supabase
           .from("recharges")
-          .select("id, user_id, order_no, amount, status, created_at")
+          .select("id, user_id, order_no, amount, status, msisdn, created_at")
           .order("created_at", { ascending: false })
           .limit(500),
         supabase
           .from("withdrawals")
-          .select("id, user_id, order_no, amount, received, status, created_at")
+          .select("id, user_id, order_no, amount, received, status, msisdn, created_at")
           .order("created_at", { ascending: false })
           .limit(500),
       ]);
@@ -53,6 +54,7 @@ export function TransactionsTab() {
           amount: r.amount,
           created_at: r.created_at,
           status: r.status,
+          msisdn: r.msisdn,
         });
       }
       for (const w of withdrawals.data ?? []) {
@@ -64,6 +66,7 @@ export function TransactionsTab() {
           amount: -Math.abs(w.amount),
           created_at: w.created_at,
           status: w.status,
+          msisdn: w.msisdn,
         });
       }
 
@@ -128,6 +131,9 @@ export function TransactionsTab() {
                 <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
                   {people?.get(row.user_id) ?? row.user_id.slice(0, 8)} · {row.kind}
                 </p>
+                {row.msisdn ? (
+                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground">Number: {row.msisdn}</p>
+                ) : null}
                 <p className="mt-0.5 text-[12px] text-muted-foreground">{formatStamp(row.created_at)}</p>
               </div>
               <div className="shrink-0 text-right">
