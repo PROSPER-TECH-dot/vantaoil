@@ -81,16 +81,17 @@ export const checkDeposit = createServerFn({ method: 'POST' })
     if (outcome === 'pending') return { status: 'pending' as const };
 
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const refArg = row.provider_ref ? { p_provider_ref: row.provider_ref } : {};
     if (outcome === 'success') {
       await supabaseAdmin.rpc('credit_recharge_by_reference', {
         p_reference: row.order_no,
-        p_provider_ref: row.provider_ref ?? undefined,
+        ...refArg,
       });
       return { status: 'success' as const };
     }
     await supabaseAdmin.rpc('fail_recharge_by_reference', {
       p_reference: row.order_no,
-      p_provider_ref: row.provider_ref ?? undefined,
+      ...refArg,
     });
     return { status: 'failed' as const };
   });
