@@ -37,7 +37,7 @@ export const Route = createFileRoute('/api/public/zengapay-webhook')({
           return new Response('Invalid payload', { status: 400 });
         }
 
-        const event = String(payload.event ?? '');
+        const event = String(payload.event ?? '').toLowerCase();
         const data = payload.data ?? {};
         const reference = data.transactionExternalReference;
         if (!reference) return new Response('Missing reference', { status: 202 });
@@ -45,28 +45,28 @@ export const Route = createFileRoute('/api/public/zengapay-webhook')({
         const ref = data.transactionSystemId ? { p_provider_ref: data.transactionSystemId } : {};
         const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
 
-        if (event === 'collection.success') {
-          await supabaseAdmin.rpc('credit_recharge_by_reference', {
-            p_reference: reference,
-            ...ref,
-          });
-        } else if (event === 'collection.failed') {
-          await supabaseAdmin.rpc('fail_recharge_by_reference', {
-            p_reference: reference,
-            ...ref,
-          });
-        } else if (event === 'transfer.success') {
+        const status = String(data.transactionStatus ?? '').toUpperCase();
+        const succeeded =
+          event.endsWith('.success') ||
+          ['SUCCEEDED', 'SUCCESS', 'COMPLETED', 'SUCCESSFUL'].includes(status);
+        const failed =
+          event.endsWith('.failed') ||
+          ['FAILED', 'REJECTED', 'CANCELLED', 'CANCELED', 'EXPIRED', 'DECLINED'].includes(status);
+        if (!succeeded && !failed) return new Response('ok', { status: 202 });
+
+        // Deposits use a "T" order prefix, withdrawal payouts use "B".
+        const isTransfer = event.startsWith('transfer') || reference.startsWith('B');
+
+        if (isTransfer) {
           await supabaseAdmin.rpc('settle_withdrawal_by_reference', {
             p_reference: reference,
-            p_status: 'Success',
+            p_status: succeeded ? 'Success' : 'Rejected',
             ...ref,
           });
-        } else if (event === 'transfer.failed') {
-          await supabaseAdmin.rpc('settle_withdrawal_by_reference', {
-            p_reference: reference,
-            p_status: 'Rejected',
-            ...ref,
-          });
+        } else if (succeeded) {
+          await supabaseAdmin.rpc('credit_recharge_by_reference', { p_reference: reference, ...ref });
+        } else {
+          await supabaseAdmin.rpc('fail_recharge_by_reference', { p_reference: reference, ...ref });
         }
 
         return new Response('ok', { status: 202 });
