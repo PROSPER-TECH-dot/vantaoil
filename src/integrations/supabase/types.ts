@@ -32,6 +32,36 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_accounts: {
+        Row: {
+          account: string
+          bank: string
+          created_at: string
+          holder: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account: string
+          bank: string
+          created_at?: string
+          holder: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account?: string
+          bank?: string
+          created_at?: string
+          holder?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       gift_codes: {
         Row: {
           active: boolean
@@ -166,6 +196,7 @@ export type Database = {
           full_name: string | null
           id: string
           invite_code: string | null
+          last_checkin_at: string | null
           last_checkin_date: string | null
           phone: string | null
           products_count: number
@@ -186,6 +217,7 @@ export type Database = {
           full_name?: string | null
           id: string
           invite_code?: string | null
+          last_checkin_at?: string | null
           last_checkin_date?: string | null
           phone?: string | null
           products_count?: number
@@ -206,6 +238,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           invite_code?: string | null
+          last_checkin_at?: string | null
           last_checkin_date?: string | null
           phone?: string | null
           products_count?: number

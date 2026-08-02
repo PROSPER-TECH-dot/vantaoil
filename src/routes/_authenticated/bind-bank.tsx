@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 import { ConfirmButton, LineInput, StarLabel, SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/bind-bank")({
   head: () => ({
@@ -21,20 +23,35 @@ const ITEM_H = 44;
 
 type Account = { id: string; bank: string; holder: string; account: string };
 
+export function useBankAccounts() {
+  return useQuery({
+    queryKey: ["bank_accounts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("bank_accounts")
+        .select("id, bank, holder, account")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as Account[];
+    },
+  });
+}
+
 function BindBankPage() {
   const [view, setView] = useState<"list" | "form">("list");
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const { data: accounts } = useBankAccounts();
+  const queryClient = useQueryClient();
+  const { showPillToast } = useCenterToast();
+
+  async function remove(id: string) {
+    const { error } = await supabase.from("bank_accounts").delete().eq("id", id);
+    if (error) return showPillToast(error.message);
+    await queryClient.invalidateQueries({ queryKey: ["bank_accounts"] });
+    showPillToast("Bank account removed");
+  }
 
   if (view === "form") {
-    return (
-      <BindForm
-        onCancel={() => setView("list")}
-        onSaved={(next) => {
-          setAccounts((prev) => [...prev, next]);
-          setView("list");
-        }}
-      />
-    );
+    return <BindForm onCancel={() => setView("list")} onSaved={() => setView("list")} />;
   }
 
   return (
@@ -53,41 +70,63 @@ function BindBankPage() {
       </div>
 
       <section className="space-y-3 px-4 py-6">
-        {accounts.length === 0 ? null : (
-          accounts.map((a) => (
-            <div key={a.id} className="rounded-2xl bg-background px-4 py-4">
-              <p className="text-[16px] font-semibold">{a.bank}</p>
-              <p className="mt-1 text-[14px] text-muted-foreground">{a.holder}</p>
-              <p className="mt-0.5 text-[14px] text-muted-foreground">{a.account}</p>
+        {(accounts ?? []).map((a) => (
+          <div key={a.id} className="rounded-2xl bg-background px-4 py-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[16px] font-semibold">{a.bank}</p>
+                <p className="mt-1 text-[14px] text-muted-foreground">{a.holder}</p>
+                <p className="mt-0.5 text-[14px] text-muted-foreground">{a.account}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void remove(a.id)}
+                className="press shrink-0 text-[14px] text-destructive"
+              >
+                Delete
+              </button>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </section>
     </div>
   );
 }
 
-function BindForm({
-  onCancel,
-  onSaved,
-}: {
-  onCancel: () => void;
-  onSaved: (account: Account) => void;
-}) {
+function BindForm({ onCancel, onSaved }: { onCancel: () => void; onSaved: () => void }) {
   const { showPillToast } = useCenterToast();
+  const queryClient = useQueryClient();
   const [sheetOpen, setSheetOpen] = useState(false);
   const [pending, setPending] = useState("MTN");
   const [bank, setBank] = useState("");
   const [holder, setHolder] = useState("");
   const [account, setAccount] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!bank) return showPillToast("Please select a bank");
     if (!holder.trim()) return showPillToast("Please enter account holder name");
     if (!/^\d{6,15}$/.test(account.trim())) return showPillToast("Please enter a valid bank account number");
-    showPillToast("Bank card bound successfully");
-    onSaved({ id: crypto.randomUUID(), bank, holder: holder.trim(), account: account.trim() });
+    if (busy) return;
+    setBusy(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) return showPillToast("Please sign in again");
+      const { error } = await supabase.from("bank_accounts").insert({
+        user_id: uid,
+        bank,
+        holder: holder.trim(),
+        account: account.trim(),
+      });
+      if (error) return showPillToast(error.message);
+      await queryClient.invalidateQueries({ queryKey: ["bank_accounts"] });
+      showPillToast("Bank card bound successfully");
+      onSaved();
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (

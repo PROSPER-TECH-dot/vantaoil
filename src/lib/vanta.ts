@@ -47,7 +47,7 @@ export type Settings = {
   welcome_bonus: number;
   checkin_bonus: number;
   support_whatsapp: string;
-  support_telegram: string;
+  support_whatsapp_2: string;
   group_link: string;
 };
 
@@ -57,8 +57,8 @@ export const SETTING_DEFAULTS: Settings = {
   withdrawal_fee_percent: 20,
   welcome_bonus: 4000,
   checkin_bonus: 300,
-  support_whatsapp: "+256788883251",
-  support_telegram: "",
+  support_whatsapp: "",
+  support_whatsapp_2: "",
   group_link: "",
 };
 
@@ -107,7 +107,7 @@ export function useProfile() {
       const { data } = await supabase
         .from("profiles")
         .select(
-          "id, full_name, email, phone, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, invite_code, checkin_days, last_checkin_date, products_count, banned",
+          "id, full_name, email, phone, avatar_url, balance, recharge_balance, cumulative_income, withdrawn, invite_code, checkin_days, last_checkin_date, last_checkin_at, products_count, banned",
         )
         .eq("id", user.id)
         .maybeSingle();

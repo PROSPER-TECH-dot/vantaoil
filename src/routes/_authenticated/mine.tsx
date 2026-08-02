@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import logoAsset from "@/assets/vanta-logo.png.asset.json";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { ugx, useIsAdmin, useProfile } from "@/lib/vanta";
 import taskImage from "@/assets/oil-plant.jpg";
@@ -338,14 +339,11 @@ function AvatarUpload({ path }: { path: string | null }) {
         onClick={() => inputRef.current?.click()}
         className="press grid h-[68px] w-[68px] shrink-0 place-items-center overflow-hidden rounded-full bg-surface"
       >
-        {url ? (
-          <img src={url} alt="Your profile picture" className="h-full w-full object-cover" />
-        ) : (
-          <svg viewBox="0 0 24 24" width="34" height="34" {...S} aria-hidden="true" className="text-muted-foreground">
-            <circle cx="12" cy="8.5" r="3.6" />
-            <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
-          </svg>
-        )}
+        <img
+          src={url ?? logoAsset.url}
+          alt="Your profile picture"
+          className="h-full w-full object-cover"
+        />
       </button>
       <input
         ref={inputRef}

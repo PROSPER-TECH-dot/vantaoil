@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, useSettings } from "@/lib/vanta";
@@ -29,12 +30,24 @@ function CheckinPage() {
   const days = profile?.checkin_days ?? 0;
   const settings = useSettings();
   const bonus = days * settings.checkin_bonus;
-  const today = new Date().toISOString().slice(0, 10);
-  const checkedIn = profile?.last_checkin_date === today;
+  const lastAt = profile?.last_checkin_at ? new Date(profile.last_checkin_at).getTime() : 0;
+  const nextAt = lastAt ? lastAt + 24 * 60 * 60 * 1000 : 0;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const remaining = Math.max(0, nextAt - now);
+  const checkedIn = remaining > 0;
+  const countdown = (() => {
+    const total = Math.ceil(remaining / 1000);
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${p(Math.floor(total / 3600))}:${p(Math.floor((total % 3600) / 60))}:${p(total % 60)}`;
+  })();
 
   async function handleCheckin() {
     if (checkedIn) {
-      showPillToast("You have already checked in today");
+      showPillToast(`You can check in again in ${countdown}`);
       return;
     }
     const { error } = await supabase.rpc("daily_checkin");
@@ -121,15 +134,16 @@ function CheckinPage() {
         <button
           type="button"
           onClick={handleCheckin}
-          className="press w-full rounded-full bg-primary py-4 text-[22px] font-bold text-primary-foreground"
+          disabled={checkedIn}
+          className="press w-full rounded-full bg-primary py-4 text-[22px] font-bold text-primary-foreground disabled:opacity-50"
         >
-          {checkedIn ? "Checked in" : "Check in"}
+          {checkedIn ? `Next check-in in ${countdown}` : "Check in"}
         </button>
 
         <ol className="mt-5 space-y-1.5 text-[15px] text-muted-foreground">
-          <li>1. Daily check-in reward: 300 UGX</li>
-          <li>2. Check in once a day.</li>
-          <li>3. Check in again after 24:00 each day.</li>
+          <li>1. Daily check-in reward: {settings.checkin_bonus} UGX</li>
+          <li>2. You can check in once every 24 hours.</li>
+          <li>3. The next check-in unlocks exactly 24 hours after your last one.</li>
         </ol>
       </section>
     </div>
