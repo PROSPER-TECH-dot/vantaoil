@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
@@ -7,6 +7,9 @@ import { useCenterToast } from "@/components/vanta/center-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/bind-bank")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    select: search['select'] === true || search['select'] === "true" ? true : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Bank Account List — Vanta Oil" },
@@ -17,6 +20,7 @@ export const Route = createFileRoute("/_authenticated/bind-bank")({
   }),
   component: BindBankPage,
 });
+
 
 const BANKS = ["MTN", "Airtel"];
 const ITEM_H = 44;
