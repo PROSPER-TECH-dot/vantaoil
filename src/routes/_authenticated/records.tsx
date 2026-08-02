@@ -27,7 +27,7 @@ function RecordsPage() {
       const { data: rows } = await supabase
         .from("transactions")
         .select("id, kind, title, amount, created_at")
-        .eq("kind", tab === "income" ? "income" : "withdrawal")
+        .in("kind", tab === "income" ? ["income", "purchase"] : ["withdrawal"])
         .order("created_at", { ascending: false });
       return rows ?? [];
     },
@@ -35,7 +35,7 @@ function RecordsPage() {
 
   const rows = (data ?? []).map((row) => ({
     id: row.id,
-    label: row.title,
+    label: row.kind === "purchase" ? `Product purchase · ${row.title}` : row.title,
     date: formatStamp(row.created_at),
     amount: tab === "income" ? Number(row.amount) : -Math.abs(Number(row.amount)),
   }));
