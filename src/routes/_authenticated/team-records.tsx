@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
+import logoAsset from "@/assets/vanta-logo.png.asset.json";
 import { SubHeader } from "@/components/vanta/sub-header";
 import { supabase } from "@/integrations/supabase/client";
 import { formatStamp } from "@/lib/vanta";
