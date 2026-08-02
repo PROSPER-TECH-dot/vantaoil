@@ -255,6 +255,7 @@ export type Database = {
           created_at: string
           daily: number
           days_paid: number
+          frozen: boolean
           id: string
           image: string | null
           name: string
@@ -270,6 +271,7 @@ export type Database = {
           created_at?: string
           daily: number
           days_paid?: number
+          frozen?: boolean
           id?: string
           image?: string | null
           name: string
@@ -285,6 +287,7 @@ export type Database = {
           created_at?: string
           daily?: number
           days_paid?: number
+          frozen?: boolean
           id?: string
           image?: string | null
           name?: string
@@ -466,9 +469,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_delete_purchase: { Args: { p_id: string }; Returns: undefined }
       admin_overview: { Args: never; Returns: Json }
       admin_set_banned: {
         Args: { p_banned: boolean; p_user_id: string }
+        Returns: undefined
+      }
+      admin_set_purchase_frozen: {
+        Args: { p_frozen: boolean; p_id: string }
         Returns: undefined
       }
       admin_set_recharge_status: {
@@ -558,6 +566,7 @@ export type Database = {
           created_at: string
           daily: number
           days_paid: number
+          frozen: boolean
           id: string
           image: string | null
           name: string
