@@ -93,6 +93,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Vanta Oil is a mobile-first oil investment platform with daily income plans, mobile money deposits and instant withdrawals." },
       { name: "twitter:description", content: "Vanta Oil is a mobile-first oil investment platform with daily income plans, mobile money deposits and instant withdrawals." },
       { property: "og:image", content: LOGO_ABSOLUTE_URL },
+      { property: "og:image:secure_url", content: LOGO_ABSOLUTE_URL },
+      { property: "og:image:type", content: "image/jpeg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Vanta Oil" },
+      { property: "og:url", content: "https://vantaoil.site" },
       { name: "twitter:image", content: LOGO_ABSOLUTE_URL },
     ],
     links: [
