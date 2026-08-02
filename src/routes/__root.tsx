@@ -10,9 +10,12 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import logoAsset from "../assets/vanta-logo.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LoadingProvider } from "../components/vanta/loading";
 import { CenterToastProvider } from "../components/vanta/center-toast";
+
+const LOGO_ABSOLUTE_URL = `https://vantaoil.site${logoAsset.url}`;
 
 function NotFoundComponent() {
   return (
