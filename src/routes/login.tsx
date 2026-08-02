@@ -137,7 +137,7 @@ function LoginPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <Link to="/register" className="text-[17px] text-link underline underline-offset-4">
+          <Link to="/register" search={{ code: "" }} className="text-[17px] text-link underline underline-offset-4">
             Go to register &gt;
           </Link>
         </div>
