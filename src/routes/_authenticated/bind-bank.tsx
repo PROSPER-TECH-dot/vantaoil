@@ -75,11 +75,6 @@ function BindBankPage() {
         </button>
       </div>
 
-      {select ? (
-        <p className="px-5 pt-4 text-center text-[14px] text-muted-foreground">
-          Tap an account to use it for your withdrawal
-        </p>
-      ) : null}
 
       <section className="space-y-3 px-4 py-6">
         {(accounts ?? []).map((a) => (

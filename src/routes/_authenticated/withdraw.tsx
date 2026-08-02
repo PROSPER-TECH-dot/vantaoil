@@ -119,13 +119,7 @@ function WithdrawPage() {
         </div>
       </section>
 
-      <div className="flex items-center gap-3 px-5 py-5">
-        <span className="h-px flex-1 bg-border" />
-        <span className="text-[15px] text-muted-foreground">Select bank card</span>
-        <span className="h-px flex-1 bg-border" />
-      </div>
-
-      <section className="px-4">
+      <section className="px-4 pt-5">
         <button
           type="button"
           onClick={() => navigate({ to: "/bind-bank", search: { select: true } })}
