@@ -12,8 +12,9 @@ import withdrawImage from "@/assets/pumpjack-free.png";
 
 export const Route = createFileRoute("/_authenticated/withdraw")({
   validateSearch: (search: Record<string, unknown>) => ({
-    card: typeof search.card === "string" ? search.card : undefined,
+    card: typeof search['card'] === "string" ? (search['card'] as string) : undefined,
   }),
+
   head: () => ({
     meta: [
       { title: "Withdraw — Vanta Oil" },
