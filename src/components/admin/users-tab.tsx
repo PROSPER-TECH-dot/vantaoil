@@ -264,6 +264,30 @@ function UserDetail({ userId, onClose }: { userId: string; onClose: () => void }
     onError: (error: Error) => showPillToast(error.message),
   });
 
+  const setFrozen = useMutation({
+    mutationFn: async (args: { id: string; frozen: boolean }) => {
+      const { error } = await supabase.rpc("admin_set_purchase_frozen", { p_id: args.id, p_frozen: args.frozen });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await refresh();
+      showCenterToast("Product updated");
+    },
+    onError: (error: Error) => showPillToast(error.message),
+  });
+
+  const removePurchase = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.rpc("admin_delete_purchase", { p_id: id });
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      await refresh();
+      showCenterToast("Product deleted");
+    },
+    onError: (error: Error) => showPillToast(error.message),
+  });
+
   const p = data?.profile;
 
   return (
