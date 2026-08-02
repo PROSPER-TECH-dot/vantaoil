@@ -97,7 +97,11 @@ function RegisterPage() {
       return;
     }
 
-    await setupAccount(phone, parsed.data.inviteCode || search.code);
+    try {
+      await setupAccount(phone, parsed.data.inviteCode || search.code);
+    } catch {
+      /* profile setup is retried on the next sign-in */
+    }
 
     startLoading(1500);
     setTimeout(() => navigate({ to: "/home" }), 1500);

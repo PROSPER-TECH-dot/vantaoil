@@ -162,8 +162,9 @@ export function useIsAdmin() {
 
 /** Creates the profile row, invite code, referral link and welcome bonus. Safe to call repeatedly. */
 export async function setupAccount(phone: string, inviteCode?: string) {
-  const code = inviteCode?.trim();
-  await supabase.rpc("setup_account", code ? { p_phone: phone, p_invite: code } : { p_phone: phone });
+  const code = inviteCode?.trim() ?? "";
+  const { error } = await supabase.rpc("setup_account", { p_phone: phone, p_invite: code });
+  if (error) throw new Error(error.message);
 }
 
 export function inviteLink(code: string) {
