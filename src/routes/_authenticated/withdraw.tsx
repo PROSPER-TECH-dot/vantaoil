@@ -169,37 +169,8 @@ function WithdrawPage() {
         </button>
       </div>
 
-      {picking ? (
-        <div className="fixed inset-0 z-50 flex items-end bg-foreground/40" onClick={() => setPicking(false)}>
-          <div className="w-full rounded-t-3xl bg-background p-4" onClick={(e) => e.stopPropagation()}>
-            <p className="px-1 pb-2 text-[16px] font-semibold">Select bank card</p>
-            {(cards ?? []).map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setCardId(c.id);
-                  setPicking(false);
-                }}
-                className="press flex w-full items-center justify-between gap-3 border-b border-border py-4 text-left last:border-b-0"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-[15.5px] font-semibold">{c.bank} · {c.account}</span>
-                  <span className="block truncate text-[13.5px] text-muted-foreground">{c.holder}</span>
-                </span>
-                {cardId === c.id ? <span className="text-primary">✓</span> : null}
-              </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/bind-bank" })}
-              className="press mt-3 w-full rounded-full border border-border py-3 text-[15px] font-semibold"
-            >
-              Add new account
-            </button>
-          </div>
-        </div>
-      ) : null}
+
+
 
       <div className="mt-6 space-y-2 px-5 text-[15.5px] leading-[1.55] text-muted-foreground">
         <p>1. The minimum withdrawal amount is UGX {settings.min_withdrawal.toLocaleString("en-US")}.</p>
