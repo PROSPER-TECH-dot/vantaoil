@@ -23,7 +23,7 @@ function WithdrawalRecordsPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("withdrawals")
-        .select("id, order_no, amount, received, status, created_at")
+        .select("id, order_no, amount, received, status, msisdn, created_at")
         .order("created_at", { ascending: false });
       return data ?? [];
     },
@@ -41,6 +41,9 @@ function WithdrawalRecordsPage() {
             <div key={row.id} className="border-b border-border py-5">
               <div className="flex items-center justify-between gap-4">
                 <p className="min-w-0 truncate text-[16px]">{row.order_no}</p>
+                {row.msisdn ? (
+                  <p className="truncate text-[13px] text-muted-foreground">{row.msisdn}</p>
+                ) : null}
                 <p
                   className={`shrink-0 text-[15px] font-semibold ${
                     row.status === "Successful" ? "text-success" : "text-primary"
