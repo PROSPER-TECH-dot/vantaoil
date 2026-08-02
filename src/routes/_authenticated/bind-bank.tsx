@@ -31,9 +31,11 @@ export function useBankAccounts() {
   return useQuery({
     queryKey: ["bank_accounts"],
     queryFn: async () => {
+      const uid = await currentUserId();
       const { data, error } = await supabase
         .from("bank_accounts")
         .select("id, bank, holder, account")
+        .eq("user_id", uid)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as Account[];

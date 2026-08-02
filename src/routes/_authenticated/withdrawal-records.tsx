@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { SubHeader } from "@/components/vanta/sub-header";
 import { supabase } from "@/integrations/supabase/client";
-import { formatStamp, ugx } from "@/lib/vanta";
+import { currentUserId, formatStamp, ugx } from "@/lib/vanta";
 
 export const Route = createFileRoute("/_authenticated/withdrawal-records")({
   head: () => ({
@@ -21,9 +21,11 @@ function WithdrawalRecordsPage() {
   const { data: rows } = useQuery({
     queryKey: ["withdrawals"],
     queryFn: async () => {
+      const uid = await currentUserId();
       const { data } = await supabase
         .from("withdrawals")
         .select("id, order_no, amount, received, status, msisdn, created_at")
+        .eq("user_id", uid)
         .order("created_at", { ascending: false });
       return data ?? [];
     },
