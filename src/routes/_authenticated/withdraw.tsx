@@ -30,6 +30,8 @@ function WithdrawPage() {
   const settings = useSettings();
   const withdraw = useServerFn(startWithdrawal);
   const [amount, setAmount] = useState("");
+  const { data: cards } = useBankAccounts();
+  const card = cards?.[0] ?? null;
 
   async function handleConfirm() {
     const value = Number(amount);
