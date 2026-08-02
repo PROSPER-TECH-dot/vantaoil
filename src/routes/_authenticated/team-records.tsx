@@ -80,13 +80,15 @@ function TeamRecordsPage() {
         <section className="space-y-3 px-4 py-4">
           {members.map((m) => (
             <div key={`${m.account}-${m.joined}`} className="flex items-center gap-3 rounded-2xl bg-background px-4 py-4">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="9" cy="8" r="3" />
-                  <circle cx="16.5" cy="9" r="2.4" />
-                  <path d="M3.5 19c.6-3 3-4.5 5.5-4.5S14 16 14.6 19M16 14.6c2 .3 3.7 1.7 4.2 4.4" />
-                </svg>
-              </span>
+              <img
+                src={logoAsset.url}
+                alt="Vanta Oil member"
+                width={40}
+                height={40}
+                loading="lazy"
+                className="h-10 w-10 shrink-0 rounded-full object-cover"
+              />
+
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[15px]">Account: {mask(m.account)}</p>
                 <p className="mt-1 text-[13px] text-muted-foreground">Date: {formatStamp(m.joined)}</p>
