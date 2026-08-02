@@ -139,7 +139,7 @@ function WithdrawPage() {
             </span>
           ) : (
             <span className="flex-1 truncate text-[17px] tracking-widest text-muted-foreground">
-              {cards && cards.length > 0 ? "Select bank card" : "_____-__________"}
+              _____-__________
             </span>
           )}
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
