@@ -86,7 +86,11 @@ function LoginPage() {
 
     setSubmitting(false);
 
-    await setupAccount(`+256${parsed.data.phone.replace(/\D/g, "").replace(/^0+/, "")}`);
+    try {
+      await setupAccount(`+256${parsed.data.phone.replace(/\D/g, "").replace(/^0+/, "")}`);
+    } catch {
+      /* profile setup is retried on the next sign-in */
+    }
     showCenterToast("Login successful");
     startLoading(1500);
     setTimeout(() => navigate({ to: "/home" }), 1500);
