@@ -26,7 +26,7 @@ const AMOUNTS = [20000, 30000, 60000, 120000, 300000, 500000, 1000000, 2000000];
 function RechargePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { showPillToast, showProcessingToast } = useCenterToast();
+  const { showPillToast, showProcessingToast, showCenterToast } = useCenterToast();
   const settings = useSettings();
   const { data: profile } = useProfile();
   const deposit = useServerFn(startDeposit);
