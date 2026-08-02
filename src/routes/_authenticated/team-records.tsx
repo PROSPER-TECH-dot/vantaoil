@@ -22,7 +22,7 @@ const LEVELS = [1, 2, 3] as const;
 
 function mask(phone: string | null) {
   const digits = (phone ?? "").replace(/\D/g, "");
-  return `**${digits.slice(-8)}`;
+  return `*****${digits.slice(-3)}`;
 }
 
 function TeamRecordsPage() {
