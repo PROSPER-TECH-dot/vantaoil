@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { useProfile } from "@/lib/vanta";
+import { NotifyBanner } from "@/components/vanta/notify-banner";
 
 
 import heroImage from "@/assets/oil-rig-hero.jpg";
 import cardsImage from "@/assets/oil-cards.jpg";
 import plantImage from "@/assets/oil-plant.jpg";
+
 
 export const Route = createFileRoute("/_authenticated/home")({
   head: () => ({
@@ -89,6 +91,7 @@ function HomePage() {
     { value: amount(profile?.cumulative_income ?? 0), label: "Cumulative" },
     { value: amount(profile?.withdrawn ?? 0), label: "Withdrawn" },
   ];
+      <NotifyBanner />
 
   return (
     <div className="slide-in bg-background">
