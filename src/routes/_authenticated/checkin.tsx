@@ -29,12 +29,24 @@ function CheckinPage() {
   const days = profile?.checkin_days ?? 0;
   const settings = useSettings();
   const bonus = days * settings.checkin_bonus;
-  const today = new Date().toISOString().slice(0, 10);
-  const checkedIn = profile?.last_checkin_date === today;
+  const lastAt = profile?.last_checkin_at ? new Date(profile.last_checkin_at).getTime() : 0;
+  const nextAt = lastAt ? lastAt + 24 * 60 * 60 * 1000 : 0;
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const remaining = Math.max(0, nextAt - now);
+  const checkedIn = remaining > 0;
+  const countdown = (() => {
+    const total = Math.ceil(remaining / 1000);
+    const p = (n: number) => String(n).padStart(2, "0");
+    return `${p(Math.floor(total / 3600))}:${p(Math.floor((total % 3600) / 60))}:${p(total % 60)}`;
+  })();
 
   async function handleCheckin() {
     if (checkedIn) {
-      showPillToast("You have already checked in today");
+      showPillToast(`You can check in again in ${countdown}`);
       return;
     }
     const { error } = await supabase.rpc("daily_checkin");
