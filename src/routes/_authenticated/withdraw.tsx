@@ -7,6 +7,7 @@ import { SubHeader } from "@/components/vanta/sub-header";
 import { useCenterToast } from "@/components/vanta/center-toast";
 import { startWithdrawal } from "@/lib/payments.functions";
 import { ugx, useProfile, useSettings } from "@/lib/vanta";
+import { useBankAccounts } from "./bind-bank";
 import withdrawImage from "@/assets/pumpjack-free.png";
 
 export const Route = createFileRoute("/_authenticated/withdraw")({
@@ -122,7 +123,16 @@ function WithdrawPage() {
             <rect x="3" y="6" width="18" height="12" rx="2" />
             <path d="M3 10h18M15.5 14.5h3" strokeLinecap="round" />
           </svg>
-          <span className="flex-1 truncate text-[17px] tracking-widest text-muted-foreground">_____-__________</span>
+          {card ? (
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[16px] font-semibold">
+                {card.bank} · {card.account}
+              </span>
+              <span className="block truncate text-[14px] text-muted-foreground">{card.holder}</span>
+            </span>
+          ) : (
+            <span className="flex-1 truncate text-[17px] tracking-widest text-muted-foreground">_____-__________</span>
+          )}
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="m9 5 7 7-7 7" />
           </svg>
