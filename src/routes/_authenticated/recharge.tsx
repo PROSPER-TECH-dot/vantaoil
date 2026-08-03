@@ -31,7 +31,7 @@ function RechargePage() {
   const { data: profile } = useProfile();
   const deposit = useServerFn(startDeposit);
   const pollDeposit = useServerFn(checkDeposit);
-  const [amount, setAmount] = useState("20000");
+  const [amount, setAmount] = useState("25000");
   const [phone, setPhone] = useState("");
   const [touchedPhone, setTouchedPhone] = useState(false);
   const phoneValue = touchedPhone ? phone : (phone || profile?.phone || "");
