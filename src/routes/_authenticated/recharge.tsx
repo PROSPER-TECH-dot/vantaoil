@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/recharge")({
   component: RechargePage,
 });
 
-const AMOUNTS = [20000, 30000, 60000, 120000, 300000, 500000, 1000000, 2000000];
+const AMOUNTS = [25000, 50000, 75000, 100000, 150000, 250000, 500000, 750000, 1000000, 1500000];
 
 function RechargePage() {
   const navigate = useNavigate();
