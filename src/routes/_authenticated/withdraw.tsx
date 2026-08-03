@@ -34,12 +34,14 @@ function WithdrawPage() {
   const settings = useSettings();
   const withdraw = useServerFn(startWithdrawal);
   const [amount, setAmount] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { data: cards } = useBankAccounts();
   const { card: cardId } = Route.useSearch();
   const card = (cards ?? []).find((c) => c.id === cardId) ?? null;
 
 
   async function handleConfirm() {
+    if (submitting) return;
     const value = Number(amount);
     if (!value) {
       showPillToast("Enter withdrawal amount");
@@ -47,6 +49,10 @@ function WithdrawPage() {
     }
     if (value < settings.min_withdrawal) {
       showPillToast(`The minimum withdrawal amount is UGX ${settings.min_withdrawal.toLocaleString("en-US")}`);
+      return;
+    }
+    if (value > (profile?.balance ?? 0)) {
+      showPillToast("Insufficient balance for this withdrawal");
       return;
     }
     if ((profile?.products_count ?? 0) < 1) {
@@ -57,16 +63,23 @@ function WithdrawPage() {
       showPillToast(cards && cards.length > 0 ? "Please select a bank card" : "Please bind a bank account first");
       return;
     }
+    setSubmitting(true);
     await showProcessingToast("Processing withdrawal...", 2500);
     try {
-      await withdraw({ data: { amount: value, msisdn: card.account } });
+      console.log("[withdrawal] submitting:", { amount: value, msisdn: card.account });
+      const result = await withdraw({ data: { amount: value, msisdn: card.account } });
+      console.log("[withdrawal] accepted:", result);
       setAmount("");
       await queryClient.invalidateQueries();
       showCenterToast("Withdrawal submitted");
     } catch (error) {
+      console.error("[withdrawal] failed:", error);
       showPillToast(error instanceof Error ? error.message : "Withdrawal could not be submitted");
+    } finally {
+      setSubmitting(false);
     }
   }
+
 
 
   return (
