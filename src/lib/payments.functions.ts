@@ -109,21 +109,40 @@ export const startWithdrawal = createServerFn({ method: 'POST' })
 
     const { data: profile } = await context.supabase
       .from('profiles')
-      .select('phone')
+      .select('phone, balance, products_count')
       .eq('id', context.userId)
       .maybeSingle();
 
     const msisdn = toMsisdn(data.msisdn || profile?.phone);
+    if (msisdn.length < 12) throw new Error('Add a valid mobile money number first');
+
+    const balance = Number(profile?.balance ?? 0);
+    if (data.amount > balance) throw new Error('Insufficient balance for this withdrawal');
+    if (Number(profile?.products_count ?? 0) < 1) {
+      throw new Error('You must own at least one product to withdraw');
+    }
+
+    console.log('[withdrawal] request payload:', JSON.stringify({
+      userId: context.userId,
+      amount: data.amount,
+      msisdn,
+      balance,
+    }));
 
     const { data: withdrawal, error } = await context.supabase.rpc('request_withdrawal', {
       p_amount: data.amount,
       p_msisdn: msisdn,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error('[withdrawal] request_withdrawal failed:', error.message);
+      throw new Error(error.message);
+    }
     const row = withdrawal as unknown as { order_no: string };
+    console.log('[withdrawal] created order:', row?.order_no);
 
     return { orderNo: row.order_no };
   });
+
 
 /** Admin approves a withdrawal: sends the mobile money payout, then marks it successful. */
 export const approveWithdrawal = createServerFn({ method: 'POST' })

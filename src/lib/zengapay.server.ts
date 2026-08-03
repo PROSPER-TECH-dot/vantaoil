@@ -6,11 +6,22 @@ function baseUrl() {
   return (process.env['ZENGAPAY_BASE_URL'] ?? 'https://api.zengapay.com/v1').replace(/\/$/, '');
 }
 
+/**
+ * Withdrawal (payout) API base. Withdrawals go through the Vanta Oil API host,
+ * never an IP address or localhost. Override only with a full https URL.
+ */
+function withdrawalBaseUrl() {
+  const configured = process.env['WITHDRAWAL_API_BASE'];
+  const url = configured && /^https:\/\//.test(configured) ? configured : 'https://api.vantaoil.site';
+  return url.replace(/\/$/, '');
+}
+
 function apiKey() {
   const key = process.env['ZENGAPAY_API_KEY'];
   if (!key) throw new Error('Mobile money is not configured yet');
   return key;
 }
+
 
 /** Normalises any Ugandan phone input to the 2567XXXXXXXX form ZENGAPAY expects. */
 export function toMsisdn(input: string | null | undefined) {
@@ -22,16 +33,26 @@ export function toMsisdn(input: string | null | undefined) {
   return digits;
 }
 
-async function call(path: string, body: Record<string, unknown>): Promise<ZengaResult> {
-  const response = await fetch(`${baseUrl()}${path}`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey()}`,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
+async function call(path: string, body: Record<string, unknown>, root = baseUrl()): Promise<ZengaResult> {
+  const url = `${root}${path}`;
+  // Payload only — the API key lives in the Authorization header and is never logged.
+  console.log(`[payments] POST ${url} payload:`, JSON.stringify(body));
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey()}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  } catch (networkError) {
+    const message = networkError instanceof Error ? networkError.message : String(networkError);
+    console.error(`[payments] NETWORK ERROR POST ${url}: ${message}`);
+    return { ok: false, status: 0, body: { message: `Network error reaching ${root}: ${message}` } };
+  }
   const text = await response.text();
   let parsed: unknown = text;
   try {
@@ -39,8 +60,10 @@ async function call(path: string, body: Record<string, unknown>): Promise<ZengaR
   } catch {
     /* provider returned plain text */
   }
+  console.log(`[payments] POST ${url} status: ${response.status}`);
+  console.log(`[payments] POST ${url} body: ${text}`);
   if (!response.ok) {
-    console.error(`ZENGAPAY ${path} failed [${response.status}]: ${text}`);
+    console.error(`[payments] POST ${url} failed [${response.status}]: ${text}`);
   }
   return { ok: response.ok, status: response.status, body: parsed };
 }
@@ -60,27 +83,39 @@ export function createCollection(input: {
   });
 }
 
-/** Sends money TO a customer (withdrawal payout). */
+/** Sends money TO a customer (withdrawal payout). Always goes to the Vanta Oil API host. */
 export function createTransfer(input: {
   msisdn: string;
   amount: number;
   externalReference: string;
   narration: string;
 }) {
-  return call('/transfers', {
-    msisdn: input.msisdn,
-    amount: input.amount,
-    external_reference: input.externalReference,
-    narration: input.narration,
-    use_contact: false,
-  });
+  return call(
+    '/transfers',
+    {
+      msisdn: input.msisdn,
+      amount: input.amount,
+      external_reference: input.externalReference,
+      narration: input.narration,
+      use_contact: false,
+    },
+    withdrawalBaseUrl(),
+  );
 }
 
-async function get(path: string): Promise<ZengaResult> {
-  const response = await fetch(`${baseUrl()}${path}`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiKey()}`, Accept: 'application/json' },
-  });
+async function get(path: string, root = baseUrl()): Promise<ZengaResult> {
+  const url = `${root}${path}`;
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      method: 'GET',
+      headers: { Authorization: `Bearer ${apiKey()}`, Accept: 'application/json' },
+    });
+  } catch (networkError) {
+    const message = networkError instanceof Error ? networkError.message : String(networkError);
+    console.error(`[payments] NETWORK ERROR GET ${url}: ${message}`);
+    return { ok: false, status: 0, body: { message: `Network error reaching ${root}: ${message}` } };
+  }
   const text = await response.text();
   let parsed: unknown = text;
   try {
@@ -88,7 +123,9 @@ async function get(path: string): Promise<ZengaResult> {
   } catch {
     /* provider returned plain text */
   }
-  if (!response.ok) console.error(`ZENGAPAY GET ${path} failed [${response.status}]: ${text}`);
+  console.log(`[payments] GET ${url} status: ${response.status}`);
+  console.log(`[payments] GET ${url} body: ${text}`);
+  if (!response.ok) console.error(`[payments] GET ${url} failed [${response.status}]: ${text}`);
   return { ok: response.ok, status: response.status, body: parsed };
 }
 
@@ -97,8 +134,9 @@ export function getCollection(reference: string) {
 }
 
 export function getTransfer(reference: string) {
-  return get(`/transfers/${encodeURIComponent(reference)}`);
+  return get(`/transfers/${encodeURIComponent(reference)}`, withdrawalBaseUrl());
 }
+
 
 type Loose = Record<string, unknown>;
 
