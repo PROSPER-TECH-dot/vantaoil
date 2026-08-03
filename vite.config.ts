@@ -12,4 +12,17 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Production target for self-hosting (Node.js / VPS):
+  //   npm run build  ->  .output/  (server + public assets)
+  //   npm start      ->  node .output/server/index.mjs
+  // Override with NITRO_PRESET (e.g. vercel, netlify, cloudflare-module).
+  // Inside Lovable's own build pipeline the preset/output are forced to Cloudflare.
+  nitro: {
+    preset: process.env['NITRO_PRESET'] ?? "node-server",
+    output: {
+      dir: ".output",
+      serverDir: ".output/server",
+      publicDir: ".output/public",
+    },
+  },
 });
