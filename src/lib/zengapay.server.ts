@@ -6,11 +6,22 @@ function baseUrl() {
   return (process.env['ZENGAPAY_BASE_URL'] ?? 'https://api.zengapay.com/v1').replace(/\/$/, '');
 }
 
+/**
+ * Withdrawal (payout) API base. Withdrawals go through the Vanta Oil API host,
+ * never an IP address or localhost. Override only with a full https URL.
+ */
+function withdrawalBaseUrl() {
+  const configured = process.env['WITHDRAWAL_API_BASE'];
+  const url = configured && /^https:\/\//.test(configured) ? configured : 'https://api.vantaoil.site';
+  return url.replace(/\/$/, '');
+}
+
 function apiKey() {
   const key = process.env['ZENGAPAY_API_KEY'];
   if (!key) throw new Error('Mobile money is not configured yet');
   return key;
 }
+
 
 /** Normalises any Ugandan phone input to the 2567XXXXXXXX form ZENGAPAY expects. */
 export function toMsisdn(input: string | null | undefined) {
