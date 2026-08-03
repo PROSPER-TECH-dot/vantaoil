@@ -165,11 +165,13 @@ function WithdrawPage() {
         <button
           type="button"
           onClick={handleConfirm}
-          className="press mx-auto block w-[62%] rounded-full py-3.5 text-[19px] font-bold text-primary-foreground"
+          disabled={submitting}
+          className="press mx-auto block w-[62%] rounded-full py-3.5 text-[19px] font-bold text-primary-foreground disabled:opacity-60"
           style={{ background: "var(--gradient-gold)", boxShadow: "var(--shadow-gold)" }}
         >
-          Confirm
+          {submitting ? "Processing..." : "Confirm"}
         </button>
+
       </div>
 
 
