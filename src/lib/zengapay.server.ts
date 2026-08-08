@@ -7,12 +7,14 @@ function baseUrl() {
 }
 
 /**
- * Withdrawal (payout) API base. Withdrawals go through the Vanta Oil API host,
- * never an IP address or localhost. Override only with a full https URL.
+ * Withdrawal (payout) API base. Payouts go straight to ZENGAPAY, the same host
+ * deposits use. Override only with a full https URL (never an IP or localhost).
  */
 function withdrawalBaseUrl() {
   const configured = process.env['WITHDRAWAL_API_BASE'];
-  const url = configured && /^https:\/\//.test(configured) ? configured : 'https://api.vantaoil.site';
+  const url = configured && /^https:\/\//.test(configured) && !/vantaoil\.site/.test(configured)
+    ? configured
+    : baseUrl();
   return url.replace(/\/$/, '');
 }
 
